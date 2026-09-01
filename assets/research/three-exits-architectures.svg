@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <rect width="960" height="440" fill="#0f0f14" rx="8"/>
+
+  <!-- Title -->
+  <text x="40" y="32" fill="#eaeaf0" font-size="16" font-weight="700">Three Architectures That Leave the Shared Kernel</text>
+  <text x="40" y="52" fill="#b4b4be" font-size="12">Where the guest–host boundary sits in each model</text>
+
+  <!-- Column 1: runc (baseline) -->
+  <g transform="translate(40, 80)">
+    <rect x="0" y="0" width="280" height="320" fill="#16161b" stroke="#2b2b33" stroke-width="1" rx="6"/>
+    <text x="14" y="22" fill="#eaeaf0" font-size="13" font-weight="700">runc (baseline)</text>
+    <text x="14" y="38" fill="#a3a3ad" font-size="10">Namespace-separated processes, shared kernel</text>
+
+    <!-- Workloads -->
+    <rect x="20" y="56" width="72" height="44" fill="#2a140f" stroke="#ff6b5e" stroke-width="1.2" rx="4"/>
+    <text x="56" y="74" fill="#fafafa" font-size="11" font-weight="600" text-anchor="middle">Agent A</text>
+    <text x="56" y="90" fill="#a3a3ad" font-size="9" text-anchor="middle">container</text>
+
+    <rect x="104" y="56" width="72" height="44" fill="#2a140f" stroke="#ff6b5e" stroke-width="1.2" rx="4"/>
+    <text x="140" y="74" fill="#fafafa" font-size="11" font-weight="600" text-anchor="middle">Agent B</text>
+    <text x="140" y="90" fill="#a3a3ad" font-size="9" text-anchor="middle">container</text>
+
+    <rect x="188" y="56" width="72" height="44" fill="#2a140f" stroke="#ff6b5e" stroke-width="1.2" rx="4"/>
+    <text x="224" y="74" fill="#fafafa" font-size="11" font-weight="600" text-anchor="middle">Agent C</text>
+    <text x="224" y="90" fill="#a3a3ad" font-size="9" text-anchor="middle">container</text>
+
+    <!-- Syscalls arrows -->
+    <line x1="56" y1="104" x2="56" y2="154" stroke="#ff6b5e" stroke-width="1.4"/>
+    <polygon points="56,158 52,150 60,150" fill="#ff6b5e"/>
+    <line x1="140" y1="104" x2="140" y2="154" stroke="#ff6b5e" stroke-width="1.4"/>
+    <polygon points="140,158 136,150 144,150" fill="#ff6b5e"/>
+    <line x1="224" y1="104" x2="224" y2="154" stroke="#ff6b5e" stroke-width="1.4"/>
+    <polygon points="224,158 220,150 228,150" fill="#ff6b5e"/>
+
+    <text x="140" y="128" fill="#ff6b5e" font-size="10" font-weight="600" text-anchor="middle">~457 syscalls each</text>
+
+    <!-- Shared kernel -->
+    <rect x="20" y="164" width="240" height="54" fill="#14160a" rx="4"/>
+    <text x="140" y="188" fill="#16161b" font-size="12" font-weight="700" text-anchor="middle">Shared Host Kernel</text>
+    <text x="140" y="206" fill="#44444f" font-size="10" text-anchor="middle">namespaces · cgroups · seccomp · LSMs</text>
+
+    <!-- Host boundary -->
+    <line x1="20" y1="244" x2="260" y2="244" stroke="#33333c" stroke-dasharray="4,3"/>
+    <text x="140" y="260" fill="#a3a3ad" font-size="10" text-anchor="middle">HOST HARDWARE</text>
+
+    <!-- Notes -->
+    <rect x="14" y="274" width="252" height="34" fill="#2a140f" stroke="#2a140f" stroke-width="0.8" rx="4"/>
+    <text x="22" y="290" fill="#ff8a80" font-size="10" font-weight="600">Boundary = software layers inside one kernel</text>
+    <text x="22" y="302" fill="#8b4040" font-size="9">Escape CVEs: annual since 2019</text>
+  </g>
+
+  <!-- Column 2: Firecracker / Cloud Hypervisor (own kernel via KVM) -->
+  <g transform="translate(340, 80)">
+    <rect x="0" y="0" width="280" height="320" fill="#16161b" stroke="#2b2b33" stroke-width="1" rx="6"/>
+    <text x="14" y="22" fill="#eaeaf0" font-size="13" font-weight="700">Firecracker / Cloud Hypervisor</text>
+    <text x="14" y="38" fill="#a3a3ad" font-size="10">Each workload boots its own kernel, KVM boundary</text>
+
+    <!-- microVMs -->
+    <g>
+      <rect x="20" y="56" width="72" height="88" fill="#14160a" stroke="#c4f000" stroke-width="1.2" rx="4"/>
+      <text x="56" y="72" fill="#eaeaf0" font-size="10" font-weight="700" text-anchor="middle">microVM</text>
+      <rect x="28" y="80" width="56" height="24" fill="#16161b" stroke="#c4f000" stroke-width="0.8" rx="3"/>
+      <text x="56" y="96" fill="#fafafa" font-size="10" font-weight="600" text-anchor="middle">Agent A</text>
+      <rect x="28" y="108" width="56" height="28" fill="#dff0df" stroke="#c4f000" stroke-width="0.6" rx="3"/>
+      <text x="56" y="125" fill="#cfcfd6" font-size="9" text-anchor="middle">guest kernel</text>
+    </g>
+    <g>
+      <rect x="104" y="56" width="72" height="88" fill="#14160a" stroke="#c4f000" stroke-width="1.2" rx="4"/>
+      <text x="140" y="72" fill="#eaeaf0" font-size="10" font-weight="700" text-anchor="middle">microVM</text>
+      <rect x="112" y="80" width="56" height="24" fill="#16161b" stroke="#c4f000" stroke-width="0.8" rx="3"/>
+      <text x="140" y="96" fill="#fafafa" font-size="10" font-weight="600" text-anchor="middle">Agent B</text>
+      <rect x="112" y="108" width="56" height="28" fill="#dff0df" stroke="#c4f000" stroke-width="0.6" rx="3"/>
+      <text x="140" y="125" fill="#cfcfd6" font-size="9" text-anchor="middle">guest kernel</text>
+    </g>
+    <g>
+      <rect x="188" y="56" width="72" height="88" fill="#14160a" stroke="#c4f000" stroke-width="1.2" rx="4"/>
+      <text x="224" y="72" fill="#eaeaf0" font-size="10" font-weight="700" text-anchor="middle">microVM</text>
+      <rect x="196" y="80" width="56" height="24" fill="#16161b" stroke="#c4f000" stroke-width="0.8" rx="3"/>
+      <text x="224" y="96" fill="#fafafa" font-size="10" font-weight="600" text-anchor="middle">Agent C</text>
+      <rect x="196" y="108" width="56" height="28" fill="#dff0df" stroke="#c4f000" stroke-width="0.6" rx="3"/>
+      <text x="224" y="125" fill="#cfcfd6" font-size="9" text-anchor="middle">guest kernel</text>
+    </g>
+
+    <!-- Hypercalls -->
+    <line x1="56" y1="148" x2="56" y2="168" stroke="#c4f000" stroke-width="1.4"/>
+    <polygon points="56,172 52,164 60,164" fill="#c4f000"/>
+    <line x1="140" y1="148" x2="140" y2="168" stroke="#c4f000" stroke-width="1.4"/>
+    <polygon points="140,172 136,164 144,164" fill="#c4f000"/>
+    <line x1="224" y1="148" x2="224" y2="168" stroke="#c4f000" stroke-width="1.4"/>
+    <polygon points="224,172 220,164 228,164" fill="#c4f000"/>
+
+    <text x="140" y="162" fill="#c4f000" font-size="10" font-weight="600" text-anchor="middle">~25 KVM hypercalls</text>
+
+    <!-- KVM host kernel -->
+    <rect x="20" y="178" width="240" height="42" fill="#14160a" rx="4"/>
+    <text x="140" y="198" fill="#16161b" font-size="12" font-weight="700" text-anchor="middle">Host Kernel + KVM</text>
+    <text x="140" y="213" fill="#44444f" font-size="10" text-anchor="middle">VMM: Firecracker (50k LoC Rust) / Cloud HV</text>
+
+    <line x1="20" y1="244" x2="260" y2="244" stroke="#33333c" stroke-dasharray="4,3"/>
+    <text x="140" y="260" fill="#a3a3ad" font-size="10" text-anchor="middle">HOST HARDWARE</text>
+
+    <rect x="14" y="274" width="252" height="34" fill="#14160a" stroke="#b8e0b8" stroke-width="0.8" rx="4"/>
+    <text x="22" y="290" fill="#c4f000" font-size="10" font-weight="600">Boundary = CPU virtualization (hardware)</text>
+    <text x="22" y="302" fill="#a9d96b" font-size="9">Firecracker: zero guest-to-host escapes since 2018</text>
+  </g>
+
+  <!-- Column 3: gVisor (userspace kernel) -->
+  <g transform="translate(640, 80)">
+    <rect x="0" y="0" width="280" height="320" fill="#16161b" stroke="#2b2b33" stroke-width="1" rx="6"/>
+    <text x="14" y="22" fill="#eaeaf0" font-size="13" font-weight="700">gVisor</text>
+    <text x="14" y="38" fill="#a3a3ad" font-size="10">Userspace kernel intercepts every syscall</text>
+
+    <!-- Workloads -->
+    <rect x="20" y="56" width="110" height="44" fill="#20201a" stroke="#ffb357" stroke-width="1.2" rx="4"/>
+    <text x="75" y="74" fill="#fafafa" font-size="11" font-weight="600" text-anchor="middle">Agent A</text>
+    <text x="75" y="90" fill="#a3a3ad" font-size="9" text-anchor="middle">sandboxed process</text>
+
+    <rect x="150" y="56" width="110" height="44" fill="#20201a" stroke="#ffb357" stroke-width="1.2" rx="4"/>
+    <text x="205" y="74" fill="#fafafa" font-size="11" font-weight="600" text-anchor="middle">Agent B</text>
+    <text x="205" y="90" fill="#a3a3ad" font-size="9" text-anchor="middle">sandboxed process</text>
+
+    <!-- Intercept arrows -->
+    <line x1="75" y1="104" x2="75" y2="118" stroke="#ffb357" stroke-width="1.4"/>
+    <polygon points="75,122 71,114 79,114" fill="#ffb357"/>
+    <line x1="205" y1="104" x2="205" y2="118" stroke="#ffb357" stroke-width="1.4"/>
+    <polygon points="205,122 201,114 209,114" fill="#ffb357"/>
+
+    <!-- Sentry -->
+    <rect x="20" y="126" width="240" height="42" fill="#221c0c" stroke="#b8860b" stroke-width="1.2" rx="4"/>
+    <text x="140" y="146" fill="#ffce80" font-size="12" font-weight="700" text-anchor="middle">Sentry — userspace kernel (Go)</text>
+    <text x="140" y="160" fill="#8b6914" font-size="10" text-anchor="middle">reimplements 274/350 syscalls · systrap/KVM</text>
+
+    <!-- Gofer for files -->
+    <rect x="20" y="176" width="110" height="32" fill="#221c0c" stroke="#b8860b" stroke-width="0.8" rx="4"/>
+    <text x="75" y="196" fill="#ffce80" font-size="10" font-weight="600" text-anchor="middle">Gofer (files)</text>
+
+    <!-- nvproxy for GPU -->
+    <rect x="150" y="176" width="110" height="32" fill="#221c0c" stroke="#b8860b" stroke-width="0.8" rx="4"/>
+    <text x="205" y="196" fill="#ffce80" font-size="10" font-weight="600" text-anchor="middle">nvproxy (GPU)</text>
+
+    <!-- Host kernel -->
+    <line x1="140" y1="212" x2="140" y2="224" stroke="#a3a3ad" stroke-width="1"/>
+    <polygon points="140,228 136,220 144,220" fill="#a3a3ad"/>
+
+    <rect x="20" y="232" width="240" height="32" fill="#14160a" rx="4"/>
+    <text x="140" y="252" fill="#16161b" font-size="11" font-weight="700" text-anchor="middle">Host Kernel (minimal calls)</text>
+
+    <line x1="20" y1="276" x2="260" y2="276" stroke="#33333c" stroke-dasharray="4,3"/>
+    <text x="140" y="290" fill="#a3a3ad" font-size="10" text-anchor="middle">HOST HARDWARE</text>
+
+    <rect x="14" y="300" width="252" height="14" fill="#20201a"/>
+  </g>
+
+  <!-- Caption -->
+  <text x="480" y="428" fill="#b4b4be" font-size="11" text-anchor="middle" font-style="italic">runc trusts the shared kernel. Firecracker replaces it. gVisor intercepts it.</text>
+</svg>

@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Running Untrusted Agent Code at Scale — LinkedIn carousel</title>
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/inter/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/jetbrains-mono/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/shantell-sans/index.css">
+  <style>
+    :root{
+      --bg:#0d0d11; --card:#1c1c22; --card-2:#16161b;
+      --ink:#fafafa; --ink-dim:#a3a3ad; --ink-faint:#6b6b78;
+      --border:rgba(255,255,255,.10); --border-2:rgba(255,255,255,.18);
+      --lime:#c4f000; --lime-ink:#1c2b00; --lime-tint:rgba(196,240,0,.12);
+      --danger:#ff6b5e; --danger-tint:rgba(255,107,94,.13);
+      --font-display:"Inter Variable","Inter",system-ui,sans-serif;
+      --font-body:"Inter Variable","Inter",system-ui,sans-serif;
+      --font-hand:"Shantell Sans Variable","Shantell Sans",cursive;
+      --font-mono:"JetBrains Mono Variable","JetBrains Mono",ui-monospace,monospace;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{ background:#000; font-family:var(--font-body); }
+
+    /* one carousel slide = LinkedIn portrait 1080×1350 (4:5) */
+    .slide{
+      position:relative; width:1080px; height:1350px; overflow:hidden;
+      background:var(--bg); color:var(--ink); font-size:33px; line-height:1.4;
+      letter-spacing:-0.005em; -webkit-font-smoothing:antialiased;
+      padding:90px 84px 120px;
+      display:flex; flex-direction:column;
+      border-bottom:2px solid #000;
+    }
+    .slide::before{
+      content:""; position:absolute; inset:0; pointer-events:none; z-index:0;
+      background:
+        radial-gradient(55% 40% at 100% 0%, rgba(196,240,0,.07), transparent 70%),
+        radial-gradient(55% 45% at 0% 100%, rgba(120,110,150,.10), transparent 70%);
+    }
+    .slide > *{ position:relative; z-index:1; }
+    .center{ justify-content:center; }
+
+    h1,h2,h3{ font-family:var(--font-display); font-weight:760; letter-spacing:-0.026em;
+      line-height:1.04; color:var(--ink); }
+    h1{ font-size:2.55em; font-weight:820; }
+    h2{ font-size:1.95em; }
+    h3{ font-size:1.32em; font-weight:700; }
+    p{ margin:0; }
+    strong{ color:#fff; font-weight:700; }
+    em{ font-style:italic; }
+    a{ color:var(--lime); text-decoration:none; }
+
+    .kicker{ display:inline-flex; align-items:center; gap:.55em; font-family:var(--font-mono);
+      font-size:.5em; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
+      color:var(--lime); margin-bottom:.9em; }
+    .kicker::before{ content:""; width:2em; height:2px; background:var(--lime); display:inline-block; }
+    .kicker.danger{ color:var(--danger); } .kicker.danger::before{ background:var(--danger); }
+
+    .lead{ font-size:1.05em; color:var(--ink); line-height:1.34; }
+    .dim{ color:var(--ink-dim); }
+    .big{ font-size:1.45em; font-weight:760; letter-spacing:-0.02em; line-height:1.14; }
+    .huge{ font-size:2.1em; font-weight:820; letter-spacing:-0.03em; line-height:1.02; }
+    .mono{ font-family:var(--font-mono); }
+    .id{ font-family:var(--font-mono); font-size:.82em; background:var(--card);
+      border:1px solid var(--border); border-radius:7px; padding:.04em .36em; color:#e7ffa8; white-space:nowrap; }
+
+    .hand{ font-family:var(--font-hand); font-weight:500; color:var(--ink); line-height:1.25; }
+    .hand-note{ font-family:var(--font-hand); font-weight:500; color:var(--ink-dim);
+      transform:rotate(-.7deg); display:inline-block; }
+
+    .stack{ display:flex; flex-direction:column; }
+    .row{ display:flex; gap:.5em; align-items:center; flex-wrap:wrap; }
+    .grow{ flex:1; } .mt-auto{ margin-top:auto; }
+
+    .chip{ font-family:var(--font-mono); font-size:.46em; font-weight:600; letter-spacing:.04em;
+      text-transform:uppercase; padding:.4em .8em; border-radius:999px; border:1px solid var(--border-2);
+      color:var(--ink-dim); background:var(--card); white-space:nowrap; }
+    .chip.danger{ color:var(--danger); border-color:var(--danger); background:var(--danger-tint); }
+    .chip.safe{ color:var(--lime); border-color:var(--lime); background:var(--lime-tint); }
+
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:18px; padding:.85em 1em; }
+    .card.danger{ border-color:var(--danger); background:var(--danger-tint); }
+    .card.safe{ border-color:var(--lime); background:var(--lime-tint); }
+    .card h3{ margin-bottom:.18em; }
+    .card p{ font-size:.74em; color:var(--ink-dim); line-height:1.38; }
+
+    .verdict{ display:inline-flex; align-items:center; gap:.45em; font-family:var(--font-mono);
+      font-size:.56em; font-weight:600; color:var(--lime-ink); background:var(--lime);
+      border-radius:9px; padding:.5em .9em; }
+    .verdict.blocked{ color:#fff; background:var(--danger); }
+
+    .thesis{ font-family:var(--font-display); font-weight:800; font-size:2.5em;
+      line-height:1.08; letter-spacing:-0.028em; }
+    .thesis .struct{ color:var(--lime); }
+    .thesis .conv{ color:var(--danger); text-decoration:line-through; text-decoration-thickness:3px; }
+
+    table{ width:100%; border-collapse:separate; border-spacing:0; font-size:.74em; }
+    th{ color:var(--lime); text-align:left; font-family:var(--font-mono); font-size:.7em;
+      text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border-2); padding:.7em .5em; }
+    td{ border-bottom:1px solid var(--border); padding:.7em .5em; color:var(--ink); line-height:1.3; vertical-align:middle; }
+    tr:last-child td{ border-bottom:none; }
+
+    .shot{ border-radius:16px; border:1px solid var(--border); display:block; }
+    .credit{ font-family:var(--font-mono); font-size:.42em; letter-spacing:.04em; color:var(--ink-faint); }
+
+    /* persistent chrome */
+    .brand{ position:absolute; top:48px; right:60px; z-index:3; height:30px; opacity:.95; }
+    .foot{ position:absolute; left:84px; right:84px; bottom:52px; z-index:3;
+      display:flex; justify-content:space-between; align-items:center;
+      font-family:var(--font-mono); font-size:17px; letter-spacing:.03em; color:var(--ink-faint); }
+    .foot b{ color:var(--lime); font-weight:600; }
+    .swipe{ font-family:var(--font-mono); font-size:.5em; letter-spacing:.18em; text-transform:uppercase;
+      color:var(--lime); }
+    .swipe .arrow{ display:inline-block; animation:none; }
+  </style>
+</head>
+<body>
+
+  <!-- ============ 1 · COVER ============ -->
+  <section class="slide center" id="s1">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker">Platform engineering · multi-tenant agents</div>
+    <h1>Running untrusted<br>agent code<br><span style="color:var(--lime)">at scale.</span></h1>
+    <p class="lead dim" style="margin-top:.7em; max-width:24ch">Code you didn't write — LLM-generated,
+      third-party, or tenant-authored — running on your shared infrastructure.</p>
+    <p class="big" style="margin-top:1.1em; max-width:22ch">How do you run it without getting owned?</p>
+    <div class="foot">
+      <span><b>Shekhar Patil</b> · Last9</span>
+      <span class="swipe">swipe <span class="arrow">→</span></span>
+    </div>
+  </section>
+
+  <!-- ============ 2 · THE INCIDENT ============ -->
+  <section class="slide" id="s2">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker">A true story · June 2026</div>
+    <h2>An AI support bot changed a stranger's account email.</h2>
+    <p class="huge" style="color:var(--lime); margin-top:.35em">It just needed to be asked.</p>
+    <div class="row" style="margin-top:1em; gap:1.4em; align-items:flex-start; flex-wrap:nowrap">
+      <div class="stack grow" style="gap:.7em">
+        <p class="lead">Attackers ran a normal reset flow on <strong>Meta's</strong> recovery bot and
+          told it to swap the email. It complied, drained the one-time codes, and took over accounts —
+          a <strong>White House</strong> one, <strong>Sephora</strong>, a <strong>Space Force</strong> official.</p>
+        <p class="hand" style="font-size:1.2em; color:var(--lime); max-width:14ch; line-height:1.25">
+          the bot wasn't hacked. it did exactly what it was told.</p>
+      </div>
+      <div class="stack" style="align-items:center; gap:.45em; flex:0 0 auto">
+        <img class="shot" src="../assets/png/meta-2.jpg" alt="Meta AI support assistant chat" style="height:520px; width:auto">
+        <span class="credit">screenshot · x.com/oracles</span>
+      </div>
+    </div>
+    <div class="foot"><span><b>Last9</b> · untrusted agents at scale</span><span>2 / 12</span></div>
+  </section>
+
+  <!-- ============ 3 · WHOSE CODE ============ -->
+  <section class="slide" id="s3">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker">The shift nobody priced in</div>
+    <h2>Whose code is it, anyway?</h2>
+    <div class="stack" style="gap:.7em; margin-top:.9em">
+      <div class="card"><h3>🤖 LLM-generated</h3><p>The model writes a command, a query, a script — at runtime, unreviewed.</p></div>
+      <div class="card"><h3>📦 Third-party skills</h3><p>Installed from a registry. You didn't write it; you can't fully audit it.</p></div>
+      <div class="card"><h3>👤 Customer-authored</h3><p>Tenants bring their own skills onto your shared platform.</p></div>
+    </div>
+    <p class="lead" style="margin-top:1em">The code's <strong>origin changed</strong>: written at runtime,
+      prompt-injected from a webhook. One sentence now does what used to take a supply-chain compromise.</p>
+    <div class="foot"><span><b>Last9</b> · untrusted agents at scale</span><span>3 / 12</span></div>
+  </section>
+
+  <!-- ============ 4 · PROMPTS CAN'T SAVE YOU ============ -->
+  <section class="slide" id="s4">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker danger">What everyone tries first</div>
+    <h2>"We'll just add guardrails to the prompt."</h2>
+    <p class="lead" style="margin-top:.7em; font-size:1.15em">A prompt is an <em>instruction</em> — it runs
+      <strong>before</strong> the model misbehaves. A tool call is a <em>syscall</em> — once code runs,
+      your prompt is a <span style="color:var(--danger)">suggestion</span>.</p>
+    <div class="row" style="margin-top:1em; gap:1.4em; align-items:flex-start; flex-wrap:nowrap">
+      <div class="stack grow" style="gap:.7em">
+        <p class="dim" style="font-size:.92em">Chipotle's support bot was jailbroken into writing code.
+          The analyst takeaway: <em>"enforce scope at the product level, not just in the prompt."</em></p>
+        <p class="hand-note" style="font-size:.95em">you can't contain a running process with English.</p>
+      </div>
+      <div class="stack" style="align-items:center; gap:.45em; flex:0 0 auto">
+        <img class="shot" src="../assets/png/chipotle.jpg" alt="Chipotle support bot writing code" style="height:470px; width:auto">
+        <span class="credit">screenshot · LinkedIn · pvergadia</span>
+      </div>
+    </div>
+    <div class="foot"><span><b>Last9</b> · untrusted agents at scale</span><span>4 / 12</span></div>
+  </section>
+
+  <!-- ============ 5 · THESIS ============ -->
+  <section class="slide center" id="s5">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker">The one idea</div>
+    <p class="thesis">Isolation must be<br><span class="struct">structural</span>,
+      not <span class="conv">conventional</span>.</p>
+    <p class="lead dim" style="margin-top:.7em; max-width:26ch">Enforced by the layer <em>below</em> the agent:
+      the crypto, the database key, the kernel. The most structural boundary of all is a
+      <span style="color:var(--lime)">kernel the agent doesn't share</span>.</p>
+    <p class="hand-note" style="font-size:1.05em; margin-top:1em">the test: does it make the attack
+      <em>impossible</em>, or just <em>tedious</em>?</p>
+    <div class="foot"><span><b>Last9</b> · untrusted agents at scale</span><span>5 / 12</span></div>
+  </section>
+
+  <!-- ============ 6 · THE SIX ============ -->
+  <section class="slide" id="s6">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker danger">Assume the code is hostile</div>
+    <h2>Six things a hostile agent will try.</h2>
+    <table style="margin-top:1em">
+      <tr><th>What if the agent…</th><th>Stopped by</th></tr>
+      <tr><td>reads secrets it was never given</td><td class="id">per-agent encryption</td></tr>
+      <tr><td>runs its own program</td><td class="id">Landlock sandbox</td></tr>
+      <tr><td>takes the whole box down</td><td class="id">process-group kill</td></tr>
+      <tr><td>burns $50k of tokens</td><td class="id">pre-call budget gate</td></tr>
+      <tr><td>sneaks bad code in through deploy</td><td class="id">HMAC + atomic deploy</td></tr>
+      <tr><td>obeys a poisoned instruction</td><td class="id">capability + approval gate</td></tr>
+    </table>
+    <p class="hand-note" style="font-size:1.05em; margin-top:1.1em">we assume the code is hostile —
+      and run it anyway. nothing about the guarantee depends on it behaving.</p>
+    <div class="foot"><span><b>Last9</b> · untrusted agents at scale</span><span>6 / 12</span></div>
+  </section>
+
+  <!-- ============ 7 · ATTACKS 1+2 ============ -->
+  <section class="slide" id="s7">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker">Defense, not hope · 1 of 3</div>
+    <div class="stack grow" style="gap:.85em; justify-content:center">
+      <div class="card danger">
+        <p class="big" style="color:var(--danger); font-size:1.15em">"I'll read secrets that aren't mine."</p>
+        <p style="margin-top:.3em">Credentials sit in env vars, files, process memory — even old snapshots.</p>
+      </div>
+      <div class="card safe">
+        <h3 style="color:var(--lime)">Encrypted to one identity</h3>
+        <p>Per-credential <span class="id">Argon2id → AES-256-GCM</span>, bound to <span class="id">(workspace, agent)</span>
+          at construction. Reach the store all you want — it's ciphertext you can't even <em>name</em>.</p>
+        <p style="margin-top:.5em"><span class="verdict">✓ a secret it wasn't given is ciphertext it can't read</span></p>
+      </div>
+      <div class="card danger" style="margin-top:.3em">
+        <p class="big" style="color:var(--danger); font-size:1.15em">"I'll run my own program."</p>
+        <p style="margin-top:.3em">It can write to its own dir — so it drops a binary and execs arbitrary native code.</p>
+      </div>
+      <div class="card safe">
+        <h3 style="color:var(--lime)">Writable, but not executable</h3>
+        <p><span class="id">Landlock</span> (kernel LSM) makes the agent's dir writable but withholds the exec bit.
+          The kernel refuses the exec no matter how clever the code is.</p>
+        <p style="margin-top:.5em"><span class="verdict">✓ contained — the LSM doesn't care how clever the code is</span></p>
+      </div>
+    </div>
+    <div class="foot"><span><b>Last9</b> · untrusted agents at scale</span><span>7 / 12</span></div>
+  </section>
+
+  <!-- ============ 8 · ATTACKS 3+4 ============ -->
+  <section class="slide" id="s8">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker">Defense, not hope · 2 of 3</div>
+    <div class="stack grow" style="gap:.85em; justify-content:center">
+      <div class="card danger">
+        <p class="big" style="color:var(--danger); font-size:1.15em">"I'll take the whole box down."</p>
+        <p style="margin-top:.3em">A hostile loop forks without end — on shared hardware, that starves every other tenant.</p>
+      </div>
+      <div class="card safe">
+        <h3 style="color:var(--lime)">One process group per agent</h3>
+        <p>Each agent is its own OS process group (<span class="id">Setpgid</span>). Stop is a tree-wide
+          <span class="id">SIGTERM → SIGKILL</span> — the runaway and every child die together.</p>
+        <p style="margin-top:.5em"><span class="verdict">✓ the noisy neighbor dies inside one agent</span></p>
+      </div>
+      <div class="card danger" style="margin-top:.3em">
+        <p class="big" style="color:var(--danger); font-size:1.15em">"I'll burn $50k in a retry loop."</p>
+        <p style="margin-top:.3em">An agent stuck in a tool-error loop can outspend your team's monthly bill in an hour.</p>
+      </div>
+      <div class="card safe">
+        <h3 style="color:var(--lime)">Check the budget before the call</h3>
+        <p>Hard cap blocks; soft cap downgrades <span class="id">Opus → Haiku</span>. Atomic per-(workspace,
+          agent, model) counters in micro-USD integers — no float drift.</p>
+        <p style="margin-top:.5em"><span class="verdict blocked">⛔ blocked before a single token is spent</span></p>
+      </div>
+    </div>
+    <div class="foot"><span><b>Last9</b> · untrusted agents at scale</span><span>8 / 12</span></div>
+  </section>
+
+  <!-- ============ 9 · ATTACKS 5+6 ============ -->
+  <section class="slide" id="s9">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker">Defense, not hope · 3 of 3</div>
+    <div class="stack grow" style="gap:.85em; justify-content:center">
+      <div class="card danger">
+        <p class="big" style="color:var(--danger); font-size:1.15em">"I'll slip bad code in through your deploy."</p>
+        <p style="margin-top:.3em">Skills ship via a git webhook — poison the pipeline <em>before the agent ever runs</em>.</p>
+      </div>
+      <div class="card safe">
+        <h3 style="color:var(--lime)">Every push is treated as hostile</h3>
+        <p><span class="id">HMAC-SHA256</span> verify · reject <span class="id">../</span> &amp; symlinks ·
+          strip setuid (<span class="id">mode &amp; 0755</span>). Deploy flips a symlink — it fully lands or nothing changes.</p>
+        <p style="margin-top:.5em"><span class="verdict">✓ verified, sandboxed, reversible</span></p>
+      </div>
+      <div class="card danger" style="margin-top:.3em">
+        <p class="big" style="color:var(--danger); font-size:1.15em">"A webhook told me to. So I did."</p>
+        <p style="margin-top:.3em">The confused deputy: not hacked, <em>convinced</em>. It acts with its own authority. (This was the Meta bot.)</p>
+      </div>
+      <div class="card safe">
+        <h3 style="color:var(--lime)">It can only do what it was granted</h3>
+        <p>Every skill declares its tools up front. Sensitive actions are <strong>deny-by-default</strong> —
+          they need explicit approval, never the agent's own judgment.</p>
+        <p style="margin-top:.5em"><span class="verdict">✓ injection changes what it wants, not what it can do</span></p>
+      </div>
+    </div>
+    <div class="foot"><span><b>Last9</b> · untrusted agents at scale</span><span>9 / 12</span></div>
+  </section>
+
+  <!-- ============ 10 · WHY NOT A CONTAINER ============ -->
+  <section class="slide" id="s10">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker">"Why not just a container?"</div>
+    <h2>A container shares the host kernel.</h2>
+    <p class="lead" style="margin-top:.6em">Namespaces change what a process <em>sees</em>.
+      They don't change what the kernel <em>does</em>.</p>
+    <div class="row" style="gap:1.2em; margin:1.3em 0; align-items:center">
+      <span class="row" style="gap:.45em"><span class="huge" style="color:var(--danger)">457</span>
+        <span class="dim" style="font-size:.6em; line-height:1.2">syscalls reachable<br>from a container</span></span>
+      <span class="dim" style="font-size:1.6em">→</span>
+      <span class="row" style="gap:.45em"><span class="huge" style="color:var(--lime)">~5</span>
+        <span class="dim" style="font-size:.6em; line-height:1.2">emulated devices in a<br>separate-kernel micro-VM</span></span>
+    </div>
+    <div class="row" style="gap:.4em; font-size:.78em">
+      <span class="chip">process</span><span class="dim">→</span>
+      <span class="chip">container</span><span class="dim">→</span>
+      <span class="chip safe">LSM</span><span class="dim">→</span>
+      <span class="chip safe">micro-VM</span><span class="dim">→</span>
+      <span class="chip">confidential VM</span>
+    </div>
+    <div class="card safe" style="margin-top:1.4em">
+      <p class="lead">The boundary that holds doesn't share a kernel. <span class="id">Firecracker</span>:
+        ~125ms boot, <strong>no confirmed guest→host escape</strong> in production.</p>
+      <p style="margin-top:.5em; font-size:.92em">Anthropic runs <strong>Claude Code</strong> itself on Firecracker —
+        <strong style="color:var(--lime)">and you can buy the same thing.</strong></p>
+    </div>
+    <p class="hand-note" style="font-size:.85em; margin-top:1.1em">runc escapes land yearly. AWS:
+      "does not consider a container … a security boundary."</p>
+    <div class="foot"><span><b>Last9</b> · untrusted agents at scale</span><span>10 / 12</span></div>
+  </section>
+
+  <!-- ============ 11 · EVERY GATE ============ -->
+  <section class="slide" id="s11">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="kicker safe">The full picture</div>
+    <h2>Every gate, in place.</h2>
+    <svg viewBox="0 0 1180 520" fill="none" style="width:100%; height:auto; margin:1.1em 0">
+      <defs>
+        <marker id="mg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6b6b78"/></marker>
+        <marker id="ml" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#c4f000"/></marker>
+        <marker id="md" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ff6b5e"/></marker>
+      </defs>
+      <rect x="20" y="168" width="138" height="108" rx="12" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+      <text x="89" y="208" fill="#fafafa" font-size="16" font-weight="600" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">event in</text>
+      <text x="89" y="232" fill="#a3a3ad" font-size="12" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">slack · cron</text>
+      <text x="89" y="250" fill="#a3a3ad" font-size="12" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">webhook · git</text>
+      <path d="M158 222 H 190" stroke="#6b6b78" stroke-width="2.5" marker-end="url(#mg)"/>
+      <rect x="192" y="158" width="150" height="128" rx="12" fill="#14160a" stroke="#c4f000" stroke-width="2" stroke-dasharray="6 4"/>
+      <text x="267" y="186" fill="#c4f000" font-size="14" font-weight="700" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">edge gate</text>
+      <text x="267" y="212" fill="#a3a3ad" font-size="12" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">authN/Z · OIDC</text>
+      <text x="267" y="232" fill="#a3a3ad" font-size="12" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">rate limit</text>
+      <text x="267" y="252" fill="#a3a3ad" font-size="12" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">HMAC verify</text>
+      <path d="M342 222 H 374" stroke="#6b6b78" stroke-width="2.5" marker-end="url(#mg)"/>
+      <rect x="376" y="64" width="400" height="372" rx="16" fill="#0e1400" stroke="#c4f000" stroke-width="2.5"/>
+      <text x="576" y="90" fill="#c4f000" font-size="14" font-weight="700" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">MICRO-VM · separate kernel</text>
+      <rect x="404" y="112" width="344" height="300" rx="12" fill="#10131a" stroke="#6c8ebf" stroke-width="2"/>
+      <text x="576" y="136" fill="#6c8ebf" font-size="12.5" font-weight="600" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">Landlock sandbox · process group</text>
+      <circle cx="496" cy="292" r="74" fill="#2a140f" stroke="#ff6b5e" stroke-width="2.5"/>
+      <text x="496" y="288" fill="#ff6b5e" font-size="20" font-weight="700" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">AGENT</text>
+      <text x="496" y="310" fill="#ff8e84" font-size="13" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">LLM loop</text>
+      <text x="496" y="328" fill="#ff8e84" font-size="11" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">untrusted</text>
+      <rect x="598" y="250" width="136" height="86" rx="10" fill="#14160a" stroke="#c4f000" stroke-width="1.5"/>
+      <text x="666" y="280" fill="#c4f000" font-size="12.5" font-weight="600" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">credential store</text>
+      <text x="666" y="300" fill="#a3a3ad" font-size="11" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">per-agent</text>
+      <text x="666" y="316" fill="#a3a3ad" font-size="11" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">AES-256-GCM</text>
+      <path d="M598 293 H 572" stroke="#c4f000" stroke-width="2" marker-end="url(#ml)"/>
+      <path d="M548 238 H 806" stroke="#ff6b5e" stroke-width="2.5" marker-end="url(#md)"/>
+      <text x="690" y="228" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">proposes a tool call</text>
+      <path d="M808 145 V 338" stroke="#6b6b78" stroke-width="2"/>
+      <path d="M808 152 H 818" stroke="#6b6b78" stroke-width="2" marker-end="url(#mg)"/>
+      <path d="M808 245 H 818" stroke="#6b6b78" stroke-width="2" marker-end="url(#mg)"/>
+      <path d="M808 338 H 818" stroke="#6b6b78" stroke-width="2" marker-end="url(#mg)"/>
+      <rect x="820" y="120" width="182" height="64" rx="10" fill="#14160a" stroke="#c4f000" stroke-width="2"/>
+      <text x="911" y="148" fill="#c4f000" font-size="13" font-weight="600" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">capability manifest</text>
+      <text x="911" y="167" fill="#a3a3ad" font-size="11" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">only declared tools exist</text>
+      <rect x="820" y="213" width="182" height="64" rx="10" fill="#14160a" stroke="#c4f000" stroke-width="2"/>
+      <text x="911" y="241" fill="#c4f000" font-size="13" font-weight="600" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">approval gate</text>
+      <text x="911" y="260" fill="#a3a3ad" font-size="11" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">deny by default</text>
+      <rect x="820" y="306" width="182" height="64" rx="10" fill="#14160a" stroke="#c4f000" stroke-width="2"/>
+      <text x="911" y="334" fill="#c4f000" font-size="13" font-weight="600" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">budget gate</text>
+      <text x="911" y="353" fill="#a3a3ad" font-size="11" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">checked pre-call</text>
+      <path d="M1002 152 H 1014" stroke="#6b6b78" stroke-width="2"/>
+      <path d="M1002 245 H 1014" stroke="#6b6b78" stroke-width="2"/>
+      <path d="M1002 338 H 1014" stroke="#6b6b78" stroke-width="2"/>
+      <path d="M1014 152 V 338" stroke="#6b6b78" stroke-width="2"/>
+      <path d="M1014 245 H 1048" stroke="#c4f000" stroke-width="2.5" marker-end="url(#ml)"/>
+      <rect x="1050" y="190" width="112" height="110" rx="12" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+      <text x="1106" y="226" fill="#fafafa" font-size="14" font-weight="600" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">tool call</text>
+      <text x="1106" y="250" fill="#a3a3ad" font-size="11" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">cloud · db</text>
+      <text x="1106" y="268" fill="#a3a3ad" font-size="11" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">shell · $</text>
+      <rect x="20" y="452" width="1142" height="48" rx="10" fill="#14160a" stroke="#c4f000" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <text x="591" y="481" fill="#c4f000" font-size="13.5" font-weight="600" text-anchor="middle" font-family="JetBrains Mono Variable, monospace">append-only · hash-chained audit  —  every attempt recorded, tamper-evident</text>
+      <path d="M267 286 V 448" stroke="#6b6b78" stroke-width="1.5" stroke-dasharray="3 4" marker-end="url(#mg)"/>
+      <path d="M576 436 V 448" stroke="#6b6b78" stroke-width="1.5" stroke-dasharray="3 4" marker-end="url(#mg)"/>
+      <path d="M911 370 V 448" stroke="#6b6b78" stroke-width="1.5" stroke-dasharray="3 4" marker-end="url(#mg)"/>
+      <path d="M1106 300 V 448" stroke="#6b6b78" stroke-width="1.5" stroke-dasharray="3 4" marker-end="url(#mg)"/>
+    </svg>
+    <p class="lead">Every action the agent takes passes through a gate <em>below</em> it. That's
+      <strong style="color:var(--lime)">zero trust for agents</strong> — where NIST, OWASP and Anthropic all landed.</p>
+    <div class="row" style="gap:.4em; margin-top:.9em; font-size:.8em">
+      <span class="chip safe">Anthropic · Zero Trust for AI Agents</span>
+      <span class="chip">NIST SP 800-207</span><span class="chip">OWASP least agency</span>
+    </div>
+    <div class="foot"><span><b>Last9</b> · untrusted agents at scale</span><span>11 / 12</span></div>
+  </section>
+
+  <!-- ============ 12 · CLOSE + OSS ============ -->
+  <section class="slide center" id="s12">
+    <img class="brand" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <p class="thesis"><span class="struct">structural</span>, not <span class="conv">conventional</span>.</p>
+    <p class="lead" style="margin-top:.6em; max-width:26ch">The goal was never to make the agent trustworthy.</p>
+    <p class="huge" style="color:var(--lime); margin-top:.2em; max-width:18ch">It's to make trust unnecessary.</p>
+
+    <div class="card safe" style="margin-top:1.6em">
+      <div class="row" style="gap:.6em"><span class="chip safe">open source</span><span class="chip">agent framework</span></div>
+      <p class="lead" style="margin-top:.5em">The framework from this talk — read it, run it, build on it:</p>
+      <p style="margin-top:.4em"><span class="id" style="font-size:1.4em; color:var(--lime); background:none; border:none; padding:0">github.com/last9/mithai</span></p>
+    </div>
+
+    <p class="lead" style="margin-top:1.4em">Building agents on shared infra? <strong>Follow for more</strong> on
+      running them safely at scale.</p>
+    <div class="foot">
+      <span><b>Shekhar Patil</b> · shekhar@last9.io</span>
+      <span>x.com/cshekhar</span>
+    </div>
+  </section>
+
+</body>
+</html>

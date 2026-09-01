@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopping the $50k Agent</title>
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reset.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reveal.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/inter/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/jetbrains-mono/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/shantell-sans/index.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/plugin/highlight/monokai.css">
+  <link rel="stylesheet" href="../shared/theme.css">
+</head>
+<body>
+  <div class="reveal">
+    <img class="brand-mark" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="deck-foot"><span><b>Last9</b> &nbsp;·&nbsp; FinOps for agent fleets</span></div>
+    <div class="slides">
+
+      <section class="title" data-background-color="#0e0f13">
+        <div class="kicker">Cost optimization &amp; ops</div>
+        <h1>Stopping the<br><span style="color:var(--lime)">$50k agent</span></h1>
+        <p class="sub">Cost governance for agentic systems, before the invoice, not after.</p>
+        <p class="byline">Shekhar Patil · Last9</p>
+      </section>
+
+      <!-- MANDATORY · what is an agent -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">Required baseline</div>
+        <h2>What <em>is</em> an agent?</h2>
+        <p class="dim" style="font-size:.74em;margin-bottom:.4em">An <strong style="color:var(--ink)">LLM in a loop</strong> that takes <strong style="color:var(--ink)">actions</strong>, keeps <strong style="color:var(--ink)">state</strong>, and acts in the world, not a chatbot, not RPA.</p>
+        <svg class="diagram" viewBox="0 0 1120 312" fill="none" style="max-height:218px;margin:0 auto">
+          <defs>
+            <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6b6b78"/></marker>
+            <marker id="ad" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ff6b5e"/></marker>
+            <marker id="as" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#c4f000"/></marker>
+          </defs>
+          <rect x="28" y="104" width="216" height="92" rx="14" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <text x="136" y="146" fill="#fafafa" font-size="22" font-weight="600" text-anchor="middle">user · event</text>
+          <text x="136" y="174" fill="#a3a3ad" font-size="14" text-anchor="middle">slack · cron · webhook</text>
+          <circle cx="560" cy="150" r="82" fill="#14160a" stroke="#c4f000" stroke-width="2.5"/>
+          <text x="560" y="145" fill="#c4f000" font-size="34" font-weight="700" text-anchor="middle">LLM</text>
+          <text x="560" y="173" fill="#a3a3ad" font-size="15" text-anchor="middle">reason → decide</text>
+          <rect x="900" y="100" width="200" height="100" rx="14" fill="#2a140f" stroke="#ff6b5e" stroke-width="2.5"/>
+          <text x="1000" y="138" fill="#ff6b5e" font-size="20" font-weight="700" text-anchor="middle">TOOL CALL</text>
+          <text x="1000" y="164" fill="#fafafa" font-size="14" text-anchor="middle">shell · cloud API</text>
+          <text x="1000" y="186" fill="#fafafa" font-size="14" text-anchor="middle">db · message · $$</text>
+          <ellipse cx="560" cy="298" rx="66" ry="14" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <path d="M494 298 v-50 a66 14 0 0 0 132 0 v50" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <ellipse cx="560" cy="248" rx="66" ry="14" fill="#16161b" stroke="#33333c" stroke-width="2"/>
+          <text x="560" y="278" fill="#a3a3ad" font-size="14" text-anchor="middle">memory · state</text>
+          <path d="M560 246 V 240" stroke="#6b6b78" stroke-width="2" marker-end="url(#a)"/>
+          <path d="M248 150 H 472" stroke="#6b6b78" stroke-width="2.5" marker-end="url(#a)"/>
+          <text x="360" y="136" fill="#a3a3ad" font-size="14" text-anchor="middle">prompt + state</text>
+          <path d="M648 134 H 718" stroke="#ff6b5e" stroke-width="3" marker-end="url(#ad)"/>
+          <text x="683" y="120" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle">proposes</text>
+          <rect x="722" y="115" width="98" height="38" rx="10" fill="#14160a" stroke="#c4f000" stroke-width="2"/>
+          <text x="771" y="139" fill="#c4f000" font-size="13" font-weight="600" text-anchor="middle">approve?</text>
+          <path d="M824 134 H 896" stroke="#ff6b5e" stroke-width="3" marker-end="url(#ad)"/>
+          <text x="860" y="120" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle">execute</text>
+          <path d="M900 178 C 800 234, 662 222, 642 170" stroke="#c4f000" stroke-width="2.5" marker-end="url(#as)"/>
+          <text x="778" y="240" fill="#c4f000" font-size="14" text-anchor="middle">result</text>
+          <path d="M514 66 C 534 32, 586 32, 606 66" stroke="#6b6b78" stroke-width="2" stroke-dasharray="4 5" marker-end="url(#a)"/>
+          <text x="560" y="26" fill="#6b6b78" font-size="13" text-anchor="middle">repeat</text>
+        </svg>
+        <div class="row" style="gap:.7em;background:var(--danger-tint);border:1px solid var(--danger);border-radius:12px;padding:.45em .8em;margin-top:.3em">
+          <span class="chip danger">it spends money</span>
+          <span style="margin:0;font-size:.95em">Every turn of that loop is a metered LLM call. Token spend is the new blast radius.</span>
+        </div>
+      </section>
+
+      <!-- THESIS -->
+      <section class="divider" data-background-color="#0b0c10">
+        <div class="actno">THE ONE IDEA</div>
+        <p class="thesis">Gate spend <span class="struct">before the call</span>, not <span class="conv">on the invoice</span>.</p>
+        <p class="lead dim" style="max-width:32ch;margin-top:.5em">A budget you discover at month-end is an
+          autopsy. A budget checked before the call is a control.</p>
+        <p class="hand-note" style="font-size:var(--step-0);margin-top:.5em">a hard cap <em>removes</em> the ability to overspend. a rate limit only <em>throttles</em> it.</p>
+        <aside class="notes">
+          The zero-trust design test applies to cost too: impossible beats tedious. A rate limit makes a
+          runaway agent slower; a pre-call hard cap makes overspend past the limit impossible. Anthropic's
+          framework names this threat directly: resource exhaustion, or loop amplification. Transition:
+          here's what that runaway actually looks like.
+        </aside>
+      </section>
+
+      <!-- attack -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker">The runaway · resource exhaustion</div>
+        <h2>"I'll retry until it works."</h2>
+        <p class="lead">A tool-error loop, a recursive plan, a cron that never settles. <strong>Loop
+          amplification</strong>: an agent can spend more in an hour than your team spends in a month.</p>
+        <p>And it does it <em>silently</em>, one reasonable-looking call at a time.</p>
+        <aside class="notes">
+          Name it the way the framework does: resource exhaustion via loop amplification. The danger isn't
+          one expensive call, it's ten thousand cheap-looking ones. Make it visceral, a retry loop overnight,
+          a recursive plan that forks. Transition: and your billing dashboard won't catch it in time.
+        </aside>
+      </section>
+
+      <!-- billing too late -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker">Why dashboards don't save you</div>
+        <h2>Billing alerts fire after the money's gone.</h2>
+        <p class="lead">Provider usage lags minutes to hours. By the time the alert pages you, the loop has
+          run ten thousand times.</p>
+        <p class="hand-note" style="font-size:var(--step-0)">you can't alert your way out of a tight loop.</p>
+        <aside class="notes">
+          Pre-empt the obvious objection, "we have billing alerts." Alerts are detection, and detection lags
+          minutes to hours; the loop runs thousands of times in that window. Detection is throttling, not
+          removing. Transition: so move the check before the call.
+        </aside>
+      </section>
+
+      <!-- defense: pre-call gate -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker">Structural control · pre-call budget gate</div>
+        <h3>Check the budget <em>before</em> the call.</h3>
+        <pre><code class="language-go" data-trim data-noescape>
+func BudgetCheck(ctx, pool, workspaceID) (*Budget, error) {
+    // SUM(cost_usd) for this month, in micro-USD integers
+    if hardCap != nil && totalCost >= *hardCap {
+        return &budget, ErrHardCapExceeded   // block the call
+    }
+    if softCap != nil && totalCost >= *softCap {
+        return &budget, ErrSoftCapExceeded   // downgrade Opus → Haiku
+    }
+}
+        </code></pre>
+        <span class="verdict blocked">⛔ blocked at $0 over, before a single token is spent</span>
+      </section>
+
+      <!-- defense: accounting -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker">Structural control · lossless accounting</div>
+        <h3>Atomic counters, integer cents, deferred flush.</h3>
+        <div class="cols">
+          <div class="stack">
+            <p>✓ per-<span class="id">(workspace, agent, model)</span> atomic counters</p>
+            <p>✓ <strong>micro-USD integers</strong>, no float drift</p>
+            <p>✓ flush every 30s; re-add on DB failure, never lose spend</p>
+          </div>
+          <div class="card"><h3>queryable</h3>
+            <p>Slice cost by tenant, agent, model, month. Feeds <span class="id">mithai_cost_usd_total</span>
+              for real-time dashboards, the early warning, not the only line of defense.</p></div>
+        </div>
+      </section>
+
+      <!-- platform reality (research) -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">The substrate matters too</div>
+        <h2>Where you run changes the bill.</h2>
+        <table>
+          <tr><th>Platform</th><th>Model</th><th>Cost lever</th></tr>
+          <tr><td>Fly Sprites</td><td>persistent, scale-to-zero @30s idle</td><td class="id">$0.46 for a 4h session</td></tr>
+          <tr><td>e2b</td><td>ephemeral microVM</td><td class="id">150ms spawn, pay per use</td></tr>
+          <tr><td>Modal</td><td>gVisor + GPU snapshots</td><td style="color:var(--ffb357)">~3x CPU premium</td></tr>
+        </table>
+        <p style="margin-top:.4em">Ephemeral + scale-to-zero turns idle agents into <strong>$0</strong>. A pool of always-on
+          containers does not.</p>
+      </section>
+
+      <!-- demo + close -->
+      <section class="divider" data-background-color="#0b0c10">
+        <div class="actno">DEMO</div>
+        <h2>Set a low cap. Watch it block.</h2>
+        <p class="lead dim" style="max-width:32ch">A $1 monthly hard cap. The agent loops; the next call returns
+          <span class="id">ErrHardCapExceeded</span> at $1.00, not $1,000.</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="../node_modules/reveal.js/dist/reveal.js"></script>
+  <script src="../node_modules/reveal.js/plugin/highlight/highlight.js"></script>
+  <script src="../node_modules/reveal.js/plugin/notes/notes.js"></script>
+  <script>
+    Reveal.initialize({ hash:true, slideNumber:'c/t', transition:'fade', transitionSpeed:'fast',
+      width:1280, height:720, margin:0.04, center:false, controlsTutorial:false,
+      plugins:[ RevealHighlight, RevealNotes ] });
+  </script>
+</body>
+</html>

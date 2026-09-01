@@ -1,0 +1,185 @@
+/* =========================================================================
+   Mithai talk portfolio — design system v3
+   Brand: Last9 / engineer9 "base-mira" (shadcn) — dark + lime primary.
+   Layout: keynote-editorial with shadcn-style cards/grid. Tech-talk legible.
+   Type: Inter (display/body) · JetBrains Mono (code/labels) · Shantell (hand).
+
+   FIT CONTRACT: Reveal runs center:false; every content slide fits a 1280×720
+   stage (sections are height:720, overflow:hidden, footer-safe). One idea/slide.
+   ========================================================================= */
+
+:root{
+  /* brand palette (engineer9 base-mira, dark) — oklch with hex fallbacks */
+  --bg:#0d0d11;        --bg: oklch(0.141 0.005 285.823);
+  --card:#1c1c22;      --card: oklch(0.21 0.006 285.885);
+  --card-2:#16161b;    --card-2: oklch(0.18 0.006 285.9);
+  --ink:#fafafa;       --ink: oklch(0.985 0 0);
+  --ink-dim:#a3a3ad;   --ink-dim: oklch(0.705 0.015 286.067);
+  --ink-faint:#6b6b78; --ink-faint: oklch(0.55 0.016 285.9);
+  --border: oklch(1 0 0 / 10%);
+  --border-2: oklch(1 0 0 / 18%);
+
+  --lime:#c4f000;      --lime: oklch(0.897 0.196 126.665);   /* brand / "contained" */
+  --lime-ink:#1c2b00;  --lime-ink: oklch(0.274 0.072 132.109);
+  --lime-tint: oklch(0.897 0.196 126.665 / 0.12);
+  --danger:#ff6b5e;    --danger: oklch(0.72 0.19 27);        /* "attack" */
+  --danger-tint: oklch(0.72 0.19 27 / 0.13);
+
+  --font-display:"Inter Variable","Inter",system-ui,sans-serif;
+  --font-body:"Inter Variable","Inter",system-ui,sans-serif;
+  --font-hand:"Shantell Sans Variable","Shantell Sans","Comic Sans MS",cursive;
+  --font-mono:"JetBrains Mono Variable","JetBrains Mono",ui-monospace,monospace;
+
+  --step--1:.8em; --step-0:1em; --step-1:1.22em; --step-2:1.5em;
+  --step-3:1.92em; --step-4:2.4em;
+  --radius:14px;
+  --pad-x:76px; --pad-top:74px; --foot:58px;
+}
+
+.reveal-viewport{ background:var(--bg); }
+/* subtle depth so slides aren't flat: faint lime glow, vignette */
+.reveal-viewport::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(60% 50% at 100% 0%, oklch(0.897 0.196 126.665 / 0.06), transparent 70%),
+    radial-gradient(50% 50% at 0% 100%, oklch(0.55 0.05 286 / 0.10), transparent 70%);
+}
+
+.reveal{ font-family:var(--font-body); font-size:31px; font-weight:400; color:var(--ink);
+  letter-spacing:-0.005em; -webkit-font-smoothing:antialiased; }
+.reveal .slides{ text-align:left; }
+
+/* content slide frame */
+.reveal .slides > section{
+  box-sizing:border-box; line-height:1.4;
+  padding:var(--pad-top) var(--pad-x) var(--foot);
+  height:720px; overflow:hidden;
+}
+.reveal section.title, .reveal section.divider{
+  display:flex; flex-direction:column; justify-content:center;
+  padding-left:88px; padding-right:88px;
+}
+
+/* ---------- type ---------- */
+.reveal h1,.reveal h2,.reveal h3,.reveal h4{
+  font-family:var(--font-display); font-optical-sizing:auto; color:var(--ink);
+  font-weight:740; letter-spacing:-0.024em; line-height:1.05; margin:0 0 .4em 0; text-transform:none; }
+.reveal h1{ font-size:var(--step-4); font-weight:800; }
+.reveal h2{ font-size:var(--step-3); }
+.reveal h3{ font-size:var(--step-2); font-weight:700; }
+.reveal h4{ font-size:var(--step-1); color:var(--ink-dim); font-weight:600; }
+.reveal p{ margin:0 0 .5em 0; }
+.reveal strong{ color:#fff; font-weight:700; }
+.reveal em{ font-style:italic; }
+.reveal a{ color:var(--lime); text-decoration:none; border-bottom:1px solid var(--lime-tint); }
+.reveal ul,.reveal ol{ margin:.15em 0 .15em 1.05em; }
+.reveal li{ margin:.24em 0; }
+.reveal li::marker{ color:var(--lime); }
+
+/* ---------- mono = literal truth ---------- */
+.reveal code,.reveal pre,.reveal .mono{ font-family:var(--font-mono); font-variant-ligatures:none; }
+.reveal :not(pre) > code,.reveal .id{ font-family:var(--font-mono); font-size:.8em;
+  background:var(--card); border:1px solid var(--border); border-radius:7px; padding:.05em .34em; color:#e7ffa8; }
+.reveal pre{ width:100%; font-size:.52em; line-height:1.55; margin:.3em 0;
+  border-radius:var(--radius); box-shadow:0 18px 50px rgba(0,0,0,.5); }
+.reveal pre code{ background:var(--card-2); border:1px solid var(--border);
+  border-left:3px solid var(--lime); border-radius:var(--radius); padding:.9em 1.1em;
+  max-height:430px; font-size:inherit; tab-size:4; }
+.reveal section.attack pre code{ border-left-color:var(--danger); }
+
+/* ---------- hand accent ---------- */
+.reveal .hand{ font-family:var(--font-hand); font-weight:500; color:var(--ink); line-height:1.25; }
+.reveal .hand-note{ font-family:var(--font-hand); font-weight:500; font-size:var(--step-0);
+  color:var(--ink-dim); transform:rotate(-.8deg); display:inline-block; margin-top:.2em; }
+
+/* thesis line */
+.reveal .thesis{ font-family:var(--font-display); font-weight:780; font-size:var(--step-3);
+  line-height:1.1; letter-spacing:-0.022em; max-width:20ch; }
+.reveal .thesis .struct{ color:var(--lime); }
+.reveal .thesis .conv{ color:var(--danger); text-decoration:line-through; text-decoration-thickness:2px; }
+
+/* ---------- kicker / chips ---------- */
+.reveal .kicker{ display:inline-flex; align-items:center; gap:.6em; font-family:var(--font-mono);
+  font-size:.5em; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--lime); margin-bottom:.7em; }
+.reveal .kicker::before{ content:""; width:1.6em; height:2px; background:var(--lime); display:inline-block; }
+.reveal section.attack .kicker{ color:var(--danger); }
+.reveal section.attack .kicker::before{ background:var(--danger); }
+.reveal .chip{ font-family:var(--font-mono); font-size:.46em; font-weight:600; letter-spacing:.04em;
+  text-transform:uppercase; padding:.3em .7em; border-radius:999px; border:1px solid var(--border-2);
+  color:var(--ink-dim); background:var(--card); white-space:nowrap; }
+.reveal .chip.danger{ color:var(--danger); border-color:var(--danger); background:var(--danger-tint); }
+.reveal .chip.safe{ color:var(--lime); border-color:var(--lime); background:var(--lime-tint); }
+
+/* ---------- semantic slides ---------- */
+.reveal section.attack{ border-left:5px solid var(--danger); }
+.reveal section.attack .lead{ color:var(--danger); }
+.reveal section.defense{ border-left:5px solid var(--lime); }
+.reveal section.defense .lead{ color:var(--lime); }
+.reveal .verdict{ display:inline-flex; align-items:center; gap:.5em; font-family:var(--font-mono);
+  font-size:.5em; font-weight:600; color:var(--lime-ink); background:var(--lime);
+  border-radius:8px; padding:.42em .85em; margin-top:.3em; }
+.reveal .verdict.blocked{ color:#fff; background:var(--danger); }
+
+/* ---------- layout helpers ---------- */
+.reveal .lead{ font-size:var(--step-1); color:var(--ink); }
+.reveal .dim{ color:var(--ink-dim); }
+.reveal .big{ font-size:var(--step-2); font-weight:760; letter-spacing:-0.02em; line-height:1.12; }
+.reveal .huge{ font-size:var(--step-4); font-weight:820; letter-spacing:-0.03em; line-height:1.0; }
+.reveal .cols{ display:grid; grid-template-columns:1fr 1fr; gap:1.1em; align-items:start; }
+.reveal .cols-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:.85em; }
+.reveal .stack{ display:flex; flex-direction:column; gap:.45em; }
+.reveal .row{ display:flex; gap:.55em; align-items:center; flex-wrap:wrap; }
+
+.reveal .card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:.7em .9em; }
+.reveal .card.danger{ border-color:var(--danger); background:var(--danger-tint); }
+.reveal .card.safe{ border-color:var(--lime); background:var(--lime-tint); }
+.reveal .card h3{ font-size:.9em; margin-bottom:.22em; }
+.reveal .card p{ font-size:.62em; color:var(--ink-dim); margin:0; line-height:1.4; }
+
+/* tables */
+.reveal table{ font-size:.58em; border-collapse:separate; border-spacing:0; width:100%; }
+.reveal table th{ color:var(--lime); text-align:left; font-family:var(--font-mono); font-size:.82em;
+  text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border-2); padding:.5em .6em; }
+.reveal table td{ border-bottom:1px solid var(--border); padding:.5em .6em; color:var(--ink); }
+.reveal table tr:last-child td{ border-bottom:none; }
+.reveal table td .id{ font-size:.92em; }
+
+/* research-diagram figures (recolored SVGs embedded as images) */
+.reveal .figure{ display:flex; flex-direction:column; align-items:center; gap:.45em; }
+.reveal .figure img{ max-height:430px; width:auto; max-width:100%; }
+.reveal .figure.framed img{ border:1px solid var(--border); border-radius:12px; background:var(--card-2); padding:10px; }
+
+/* inline diagrams inherit page fonts */
+.reveal svg.diagram{ display:block; width:100%; height:auto; max-height:420px; }
+.reveal svg text{ font-family:var(--font-mono); }
+.reveal svg text.hand{ font-family:var(--font-hand); }
+
+/* reveal chrome */
+.reveal .progress{ color:var(--lime); height:3px; }
+.reveal .controls{ color:var(--ink-faint); }
+/* page number: bottom-center, clear of the left footer and the right nav buttons */
+.reveal .slide-number{ font-family:var(--font-mono); background:transparent; color:var(--ink-faint);
+  left:50% !important; right:auto !important; top:auto !important; bottom:16px !important;
+  transform:translateX(-50%); }
+/* keep the left footer from running under the bottom-right nav buttons */
+.reveal .deck-foot{ right:auto; max-width:62%; }
+.reveal pre code.hljs{ background:var(--card-2)!important; }
+.hljs-comment{ color:#6b6b78!important; font-style:italic; }
+
+/* title / divider */
+.reveal section.title h1{ font-size:2.6em; line-height:1.0; }
+.reveal section.title .sub{ font-size:var(--step-1); color:var(--ink-dim); margin-top:.45em; max-width:28ch; }
+.reveal section.title .byline{ font-family:var(--font-mono); font-size:.5em; color:var(--ink-faint); margin-top:1.1em; letter-spacing:.06em; }
+.reveal section.divider .actno{ display:inline-flex; align-items:center; gap:.6em; font-family:var(--font-mono);
+  color:var(--lime); font-size:.6em; letter-spacing:.2em; margin-bottom:.35em; }
+.reveal section.divider .actno::before{ content:""; width:1.6em; height:2px; background:var(--lime); }
+.reveal section.divider h2{ font-size:2.3em; }
+
+/* persistent brand mark + footer (every slide) */
+.reveal .brand-mark{ position:fixed; top:28px; right:32px; height:26px; opacity:.92; z-index:31; pointer-events:none; }
+.reveal .deck-foot{ position:fixed; bottom:18px; left:32px; right:32px; display:flex;
+  justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:12.5px;
+  letter-spacing:.04em; color:var(--ink-faint); pointer-events:none; z-index:30; }
+.reveal .deck-foot b{ color:var(--lime); font-weight:600; }

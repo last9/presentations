@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deploying Code You Didn't Write</title>
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reset.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reveal.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/inter/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/jetbrains-mono/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/shantell-sans/index.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/plugin/highlight/monokai.css">
+  <link rel="stylesheet" href="../shared/theme.css">
+</head>
+<body>
+  <div class="reveal">
+    <img class="brand-mark" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="deck-foot"><span><b>Last9</b> &nbsp;·&nbsp; deploying code you didn't write</span></div>
+    <div class="slides">
+
+      <section class="title" data-background-color="#0e0f13">
+        <div class="kicker">Supply chain &amp; platform engineering</div>
+        <h1>Deploying code<br>you <span style="color:var(--lime)">didn't write</span></h1>
+        <p class="sub">Secure continuous delivery for agent code.</p>
+        <p class="byline">Shekhar Patil · Last9</p>
+      </section>
+
+      <!-- MANDATORY · what is an agent -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">Required baseline</div>
+        <h2>What <em>is</em> an agent?</h2>
+        <p class="dim" style="font-size:.74em;margin-bottom:.4em">An <strong style="color:var(--ink)">LLM in a loop</strong> that takes <strong style="color:var(--ink)">actions</strong>, keeps <strong style="color:var(--ink)">state</strong>, and acts in the world, not a chatbot, not RPA.</p>
+        <svg class="diagram" viewBox="0 0 1120 312" fill="none" style="max-height:218px;margin:0 auto">
+          <defs>
+            <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6b6b78"/></marker>
+            <marker id="ad" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ff6b5e"/></marker>
+            <marker id="as" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#c4f000"/></marker>
+          </defs>
+          <rect x="28" y="104" width="216" height="92" rx="14" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <text x="136" y="146" fill="#fafafa" font-size="22" font-weight="600" text-anchor="middle">user · event</text>
+          <text x="136" y="174" fill="#a3a3ad" font-size="14" text-anchor="middle">slack · cron · webhook</text>
+          <circle cx="560" cy="150" r="82" fill="#14160a" stroke="#c4f000" stroke-width="2.5"/>
+          <text x="560" y="145" fill="#c4f000" font-size="34" font-weight="700" text-anchor="middle">LLM</text>
+          <text x="560" y="173" fill="#a3a3ad" font-size="15" text-anchor="middle">reason → decide</text>
+          <rect x="900" y="100" width="200" height="100" rx="14" fill="#2a140f" stroke="#ff6b5e" stroke-width="2.5"/>
+          <text x="1000" y="138" fill="#ff6b5e" font-size="20" font-weight="700" text-anchor="middle">TOOL CALL</text>
+          <text x="1000" y="164" fill="#fafafa" font-size="14" text-anchor="middle">shell · cloud API</text>
+          <text x="1000" y="186" fill="#fafafa" font-size="14" text-anchor="middle">db · message · $$</text>
+          <ellipse cx="560" cy="298" rx="66" ry="14" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <path d="M494 298 v-50 a66 14 0 0 0 132 0 v50" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <ellipse cx="560" cy="248" rx="66" ry="14" fill="#16161b" stroke="#33333c" stroke-width="2"/>
+          <text x="560" y="278" fill="#a3a3ad" font-size="14" text-anchor="middle">memory · state</text>
+          <path d="M560 246 V 240" stroke="#6b6b78" stroke-width="2" marker-end="url(#a)"/>
+          <path d="M248 150 H 472" stroke="#6b6b78" stroke-width="2.5" marker-end="url(#a)"/>
+          <text x="360" y="136" fill="#a3a3ad" font-size="14" text-anchor="middle">prompt + state</text>
+          <path d="M648 134 H 718" stroke="#ff6b5e" stroke-width="3" marker-end="url(#ad)"/>
+          <text x="683" y="120" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle">proposes</text>
+          <rect x="722" y="115" width="98" height="38" rx="10" fill="#14160a" stroke="#c4f000" stroke-width="2"/>
+          <text x="771" y="139" fill="#c4f000" font-size="13" font-weight="600" text-anchor="middle">approve?</text>
+          <path d="M824 134 H 896" stroke="#ff6b5e" stroke-width="3" marker-end="url(#ad)"/>
+          <text x="860" y="120" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle">execute</text>
+          <path d="M900 178 C 800 234, 662 222, 642 170" stroke="#c4f000" stroke-width="2.5" marker-end="url(#as)"/>
+          <text x="778" y="240" fill="#c4f000" font-size="14" text-anchor="middle">result</text>
+          <path d="M514 66 C 534 32, 586 32, 606 66" stroke="#6b6b78" stroke-width="2" stroke-dasharray="4 5" marker-end="url(#a)"/>
+          <text x="560" y="26" fill="#6b6b78" font-size="13" text-anchor="middle">repeat</text>
+        </svg>
+        <div class="row" style="gap:.7em;background:var(--danger-tint);border:1px solid var(--danger);border-radius:12px;padding:.45em .8em;margin-top:.3em">
+          <span class="chip danger">its code keeps changing</span>
+          <span style="margin:0;font-size:.95em">New skills ship constantly, often via git webhook from sources you don't fully control.</span>
+        </div>
+      </section>
+
+      <!-- THESIS -->
+      <section class="divider" data-background-color="#0b0c10">
+        <div class="actno">THE ONE IDEA</div>
+        <p class="thesis">Treat every push as <span class="conv">hostile</span> until <span class="struct">verified</span>.</p>
+        <p class="lead dim" style="max-width:30ch;margin-top:.5em">A deploy pipeline is an entry point. Authenticate it,
+          sanitize it, and make it atomic, so a bad deploy can't half-land.</p>
+      </section>
+
+      <!-- attack surface -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker">The pipeline is the attack surface</div>
+        <h2>Supply chain is where agents get popped.</h2>
+        <p class="lead">30+ MCP CVEs in 60 days. A poisoned npm package via prompt-injection: ~4,000 installs
+          in 8 hours.</p>
+        <p>Spoof the webhook, smuggle a <span class="id">../</span> path or a symlink, plant a setuid binary,
+          and you own the box through the front door.</p>
+      </section>
+
+      <!-- defense: verify + sanitize -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker">Structural control · verify, then sanitize</div>
+        <h3>Five doors, five locks.</h3>
+        <div class="cols">
+          <div class="stack">
+            <p>✓ <span class="id">HMAC-SHA256</span> verify (GitHub/GitLab/generic)</p>
+            <p>✓ 5-minute replay-dedup window</p>
+            <p>✓ reject <span class="id">../</span> traversal &amp; symlinks/hardlinks</p>
+          </div>
+          <div class="stack">
+            <p>✓ strip setuid/setgid: <span class="id">mode &amp; 0755</span></p>
+            <p>✓ size / file-count caps (no zip-bombs)</p>
+            <p>✓ optional source-IP allowlist</p>
+          </div>
+        </div>
+        <span class="verdict">✓ a bad signature never reaches extraction; a bad path never reaches disk</span>
+      </section>
+
+      <!-- defense: atomic -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker">Structural control · atomic + reversible</div>
+        <h3>All-or-nothing, with instant rollback.</h3>
+        <pre><code class="language-bash" data-trim data-noescape>
+agents/&lt;id&gt;/versions/v42/     # new version written in full
+agents/&lt;id&gt;/current -> v42    # one atomic symlink swap flips it live
+# rollback = flip the symlink back to v41. no half-deployed state.
+        </code></pre>
+        <p>A crash mid-deploy leaves the live symlink untouched. The agent never runs a half-written skill.</p>
+      </section>
+
+      <!-- demo + close -->
+      <section class="divider" data-background-color="#0b0c10">
+        <div class="actno">DEMO</div>
+        <h2>Try to sneak code through.</h2>
+        <p class="lead dim" style="max-width:34ch">Bad HMAC → <span class="id">401</span>. A tar with <span class="id">../</span>
+          and a symlink → rejected. After deploy, the setuid bit is gone.</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="../node_modules/reveal.js/dist/reveal.js"></script>
+  <script src="../node_modules/reveal.js/plugin/highlight/highlight.js"></script>
+  <script src="../node_modules/reveal.js/plugin/notes/notes.js"></script>
+  <script>
+    Reveal.initialize({ hash:true, slideNumber:'c/t', transition:'fade', transitionSpeed:'fast',
+      width:1280, height:720, margin:0.04, center:false, controlsTutorial:false,
+      plugins:[ RevealHighlight, RevealNotes ] });
+  </script>
+</body>
+</html>

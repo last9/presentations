@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Agent Deployment, Talk Portfolio</title>
+  <link rel="stylesheet" href="./node_modules/@fontsource-variable/inter/index.css">
+  <link rel="stylesheet" href="./node_modules/@fontsource-variable/jetbrains-mono/index.css">
+  <link rel="stylesheet" href="./node_modules/@fontsource-variable/shantell-sans/index.css">
+  <style>
+    :root{
+      --bg:#0d0d11; --bg: oklch(0.141 0.005 285.823);
+      --card:#1c1c22; --card: oklch(0.21 0.006 285.885);
+      --ink:#fafafa; --ink: oklch(0.985 0 0);
+      --ink-dim:#a3a3ad; --ink-dim: oklch(0.705 0.015 286.067);
+      --ink-faint:#6b6b78;
+      --border: oklch(1 0 0 / 10%); --border-2: oklch(1 0 0 / 18%);
+      --lime:#c4f000; --lime: oklch(0.897 0.196 126.665);
+      --lime-ink:#1c2b00; --lime-ink: oklch(0.274 0.072 132.109);
+      --danger:#ff6b5e;
+      --font-display:"Inter Variable",system-ui,sans-serif;
+      --font-mono:"JetBrains Mono Variable",ui-monospace,monospace;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-display);
+      -webkit-font-smoothing:antialiased; letter-spacing:-0.01em;
+      background-image:
+        radial-gradient(60% 50% at 100% 0%, oklch(0.897 0.196 126.665 / 0.06), transparent 70%),
+        radial-gradient(50% 50% at 0% 100%, oklch(0.55 0.05 286 / 0.10), transparent 70%);
+      background-attachment:fixed; }
+    .wrap{ max-width:1120px; margin:0 auto; padding:72px 40px 96px; }
+    header{ display:flex; align-items:center; gap:18px; margin-bottom:8px; }
+    header img{ height:42px; }
+    .kicker{ font-family:var(--font-mono); font-size:13px; font-weight:600; letter-spacing:.22em;
+      text-transform:uppercase; color:var(--lime); display:flex; align-items:center; gap:.7em; }
+    .kicker::before{ content:""; width:2.2em; height:2px; background:var(--lime); }
+    h1{ font-size:54px; font-weight:800; letter-spacing:-0.03em; line-height:1.04; margin:.2em 0 .15em; }
+    h1 .g{ color:var(--lime); }
+    .sub{ font-size:20px; color:var(--ink-dim); max-width:62ch; line-height:1.45; margin:0 0 40px; }
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    a.card{ display:block; text-decoration:none; color:inherit; background:var(--card);
+      border:1px solid var(--border); border-radius:16px; padding:22px 24px; transition:.16s ease;
+      position:relative; overflow:hidden; }
+    a.card:hover{ border-color:var(--lime); transform:translateY(-2px); }
+    a.card .no{ font-family:var(--font-mono); font-size:13px; color:var(--ink-faint); }
+    a.card h2{ font-size:23px; font-weight:740; letter-spacing:-0.02em; margin:.25em 0 .35em; line-height:1.15; }
+    a.card p{ font-size:15px; color:var(--ink-dim); line-height:1.5; margin:0 0 14px; }
+    a.card .row{ display:flex; align-items:center; justify-content:space-between; }
+    .chip{ font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:.04em;
+      text-transform:uppercase; padding:.3em .7em; border-radius:999px; border:1px solid var(--border-2);
+      color:var(--ink-dim); }
+    .go{ font-family:var(--font-mono); font-size:13px; color:var(--lime); }
+    footer{ margin-top:44px; font-family:var(--font-mono); font-size:13px; color:var(--ink-faint); }
+    footer a{ color:var(--lime); text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="./assets/png/last9-icon-secondary.png" alt="Last9">
+      <span class="kicker">Conference talk portfolio</span>
+    </header>
+    <h1>Deploying agents <span class="g">securely</span>, at scale.</h1>
+    <p class="sub">Eight standalone talks from one body of work: running untrusted, LLM-generated agent code on
+      shared infrastructure. Grounded in zero-trust principles (Anthropic · NIST SP 800-207 · OWASP least agency).
+      Every deck opens with the same baseline and thesis, then goes its own way.</p>
+
+    <div class="grid">
+      <a class="card" href="./talk-1/">
+        <span class="no">01</span>
+        <h2>Running Untrusted Agent Code at Scale</h2>
+        <p>The code's origin changed. The boundary that holds doesn't share a kernel. The flagship.</p>
+        <div class="row"><span class="chip">Flagship · Security</span><span class="go">open deck →</span></div>
+      </a>
+      <a class="card" href="./talk-2/">
+        <span class="no">02</span>
+        <h2>Secrets That Even Your Own Code Can't Steal</h2>
+        <p>Per-agent crypto bound at construction, and the new exposure: credentials in the snapshot.</p>
+        <div class="row"><span class="chip">Cryptography</span><span class="go">open deck →</span></div>
+      </a>
+      <a class="card" href="./talk-3/">
+        <span class="no">03</span>
+        <h2>Stopping the $50k Agent</h2>
+        <p>Cost governance with a pre-call budget gate. Block the loop before the invoice.</p>
+        <div class="row"><span class="chip">FinOps · Ops</span><span class="go">open deck →</span></div>
+      </a>
+      <a class="card" href="./talk-4/">
+        <span class="no">04</span>
+        <h2>Tamper-Evident Agents</h2>
+        <p>Hash-chained audit you can prove, and observability that won't melt Prometheus.</p>
+        <div class="row"><span class="chip">Governance · SRE</span><span class="go">open deck →</span></div>
+      </a>
+      <a class="card" href="./talk-5/">
+        <span class="no">05</span>
+        <h2>Deploying Code You Didn't Write</h2>
+        <p>Treat every webhook push as hostile: verify, sanitize, and make the deploy atomic.</p>
+        <div class="row"><span class="chip">Supply chain</span><span class="go">open deck →</span></div>
+      </a>
+      <a class="card" href="./talk-6/">
+        <span class="no">06</span>
+        <h2>Approvals as a First-Class Control</h2>
+        <p>Human-in-the-loop that scales: declared per-tool policy, memoized, defended in depth.</p>
+        <div class="row"><span class="chip">Human-in-the-loop</span><span class="go">open deck →</span></div>
+      </a>
+      <a class="card" href="./talk-7/">
+        <span class="no">07</span>
+        <h2>Building a Multi-Tenant Agent Platform in Go</h2>
+        <p>No global state, construction-time binding: isolation as a property of the codebase.</p>
+        <div class="row"><span class="chip">Architecture · Go</span><span class="go">open deck →</span></div>
+      </a>
+      <a class="card" href="./talk-8/">
+        <span class="no">08</span>
+        <h2>Why Containers Aren't Enough</h2>
+        <p>457 syscalls vs 25 hypercalls. The CVE record, Copy Fail, and the boundary that holds.</p>
+        <div class="row"><span class="chip">Companion · Infra</span><span class="go">open deck →</span></div>
+      </a>
+    </div>
+
+    <footer>Last9 &nbsp;·&nbsp; abstracts &amp; presenter scripts in <a href="./docs/">docs/</a> &nbsp;·&nbsp; press <span style="color:var(--ink-dim)">F</span> in any deck for full-screen</footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "last9-presentations",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Last9 conference talks and presentation assets",
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check-local-links.mjs",
+    "dev": "serve -l 8000 .",
+    "start": "serve -l 8000 .",
+    "assets": "node scripts/svg-to-png.mjs",
+    "pdf:talk-1": "decktape reveal http://localhost:8000/talk-1/ talk-1/talk-1.pdf"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.1.0",
+    "@fontsource-variable/jetbrains-mono": "^5.1.0",
+    "@fontsource-variable/shantell-sans": "^5.1.0",
+    "reveal.js": "^5.1.0"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "serve": "^14.2.4"
+  }
+}

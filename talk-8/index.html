@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why Containers Aren't Enough for Untrusted Agents</title>
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reset.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reveal.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/inter/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/jetbrains-mono/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/shantell-sans/index.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/plugin/highlight/monokai.css">
+  <link rel="stylesheet" href="../shared/theme.css">
+</head>
+<body>
+  <div class="reveal">
+    <img class="brand-mark" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="deck-foot"><span><b>Last9</b> &nbsp;·&nbsp; why containers aren't enough</span></div>
+    <div class="slides">
+
+      <!-- TITLE -->
+      <section class="title" data-background-color="#0e0f13">
+        <div class="kicker">Security &amp; infrastructure</div>
+        <h1>Why containers<br>aren't enough for<br><span style="color:var(--lime)">untrusted agents</span></h1>
+        <p class="sub">Choosing an isolation boundary that matches the threat.</p>
+        <p class="byline">Shekhar Patil · Last9</p>
+      </section>
+
+      <!-- MANDATORY · what is an agent -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">Required baseline</div>
+        <h2>What <em>is</em> an agent?</h2>
+        <p class="dim" style="font-size:.74em;margin-bottom:.4em">An <strong style="color:var(--ink)">LLM in a loop</strong> that takes <strong style="color:var(--ink)">actions</strong>, keeps <strong style="color:var(--ink)">state</strong>, and acts in the world, not a chatbot, not RPA.</p>
+        <svg class="diagram" viewBox="0 0 1120 312" fill="none" style="max-height:218px;margin:0 auto">
+          <defs>
+            <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6b6b78"/></marker>
+            <marker id="ad" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ff6b5e"/></marker>
+            <marker id="as" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#c4f000"/></marker>
+          </defs>
+          <rect x="28" y="104" width="216" height="92" rx="14" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <text x="136" y="146" fill="#fafafa" font-size="22" font-weight="600" text-anchor="middle">user · event</text>
+          <text x="136" y="174" fill="#a3a3ad" font-size="14" text-anchor="middle">slack · cron · webhook</text>
+          <circle cx="560" cy="150" r="82" fill="#14160a" stroke="#c4f000" stroke-width="2.5"/>
+          <text x="560" y="145" fill="#c4f000" font-size="34" font-weight="700" text-anchor="middle">LLM</text>
+          <text x="560" y="173" fill="#a3a3ad" font-size="15" text-anchor="middle">reason → decide</text>
+          <rect x="900" y="100" width="200" height="100" rx="14" fill="#2a140f" stroke="#ff6b5e" stroke-width="2.5"/>
+          <text x="1000" y="138" fill="#ff6b5e" font-size="20" font-weight="700" text-anchor="middle">TOOL CALL</text>
+          <text x="1000" y="164" fill="#fafafa" font-size="14" text-anchor="middle">shell · cloud API</text>
+          <text x="1000" y="186" fill="#fafafa" font-size="14" text-anchor="middle">db · message · $$</text>
+          <ellipse cx="560" cy="298" rx="66" ry="14" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <path d="M494 298 v-50 a66 14 0 0 0 132 0 v50" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <ellipse cx="560" cy="248" rx="66" ry="14" fill="#16161b" stroke="#33333c" stroke-width="2"/>
+          <text x="560" y="278" fill="#a3a3ad" font-size="14" text-anchor="middle">memory · state</text>
+          <path d="M560 246 V 240" stroke="#6b6b78" stroke-width="2" marker-end="url(#a)"/>
+          <path d="M248 150 H 472" stroke="#6b6b78" stroke-width="2.5" marker-end="url(#a)"/>
+          <text x="360" y="136" fill="#a3a3ad" font-size="14" text-anchor="middle">prompt + state</text>
+          <path d="M648 134 H 718" stroke="#ff6b5e" stroke-width="3" marker-end="url(#ad)"/>
+          <text x="683" y="120" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle">proposes</text>
+          <rect x="722" y="115" width="98" height="38" rx="10" fill="#14160a" stroke="#c4f000" stroke-width="2"/>
+          <text x="771" y="139" fill="#c4f000" font-size="13" font-weight="600" text-anchor="middle">approve?</text>
+          <path d="M824 134 H 896" stroke="#ff6b5e" stroke-width="3" marker-end="url(#ad)"/>
+          <text x="860" y="120" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle">execute</text>
+          <path d="M900 178 C 800 234, 662 222, 642 170" stroke="#c4f000" stroke-width="2.5" marker-end="url(#as)"/>
+          <text x="778" y="240" fill="#c4f000" font-size="14" text-anchor="middle">result</text>
+          <path d="M514 66 C 534 32, 586 32, 606 66" stroke="#6b6b78" stroke-width="2" stroke-dasharray="4 5" marker-end="url(#a)"/>
+          <text x="560" y="26" fill="#6b6b78" font-size="13" text-anchor="middle">repeat</text>
+        </svg>
+        <div class="row" style="gap:.7em;background:var(--danger-tint);border:1px solid var(--danger);border-radius:12px;padding:.45em .8em;margin-top:.3em">
+          <span class="chip danger">the payoff</span>
+          <span style="margin:0;font-size:.95em">An agent isn't an "AI feature." It's a <strong>code-execution system</strong>.</span>
+        </div>
+      </section>
+
+      <!-- THESIS -->
+      <section class="divider" data-background-color="#0b0c10">
+        <div class="actno">THE ONE IDEA</div>
+        <p class="thesis">The boundary that holds doesn't <span class="struct">share a kernel</span>.</p>
+        <p class="lead dim" style="max-width:32ch;margin-top:.5em">A container is a packaging tool. For code that
+          <em>wants out</em>, it is not a security boundary.</p>
+        <p class="hand-note" style="font-size:var(--step-0);margin-top:.5em">zero-trust test: does it make escape <em>impossible</em>, or just <em>tedious</em>?</p>
+        <aside class="notes">
+          Frame the whole talk as one question from Anthropic's zero-trust framework: does a control make
+          the attack impossible, or just tedious? Containers are a brilliant packaging tool, but for hostile
+          code they only make escape tedious. Hold that test up against every isolation option in this talk.
+          Transition: so what exactly is a container, and where does it leak?
+        </aside>
+      </section>
+
+      <!-- default answer -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker">The reflex</div>
+        <h2>"Just run it in a container."</h2>
+        <p class="lead">Right answer for code <em>you wrote</em>. For an agent running LLM-generated,
+          prompt-injected code, it's the wrong boundary.</p>
+        <p>A container is a Linux process with <span class="id">namespaces</span> + <span class="id">cgroups</span>.
+          Namespaces change what a process <strong>sees</strong>. They don't change what the kernel <strong>does</strong>.</p>
+      </section>
+
+      <!-- 457 -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker">Shared kernel = shared blast radius</div>
+        <h2>One kernel. 457 doors.</h2>
+        <div class="row" style="gap:2.4em;margin-top:.3em">
+          <span><span class="huge" style="color:var(--danger)">457</span>
+            <span class="dim" style="font-size:.66em">syscalls reachable from a container.<br>Docker's default seccomp blocks ~49.</span></span>
+          <span class="dim" style="font-size:1.6em">vs</span>
+          <span><span class="huge" style="color:var(--lime)">~25</span>
+            <span class="dim" style="font-size:.66em">KVM hypercalls to reach a host<br>from a separate-kernel micro-VM.</span></span>
+        </div>
+        <p class="hand-note" style="font-size:var(--step-0);margin-top:.5em">seccomp <em>throttles</em> the shared kernel; a separate kernel <em>removes</em> it.</p>
+        <aside class="notes">
+          The number is the hook: 457 syscalls reachable from a container, Docker blocks only ~49. A web
+          server uses maybe 40, so you could once build a tight seccomp profile. An agent might call ANY of
+          the 457 depending on what the LLM decides, so you can't pre-build a profile for "anything." That's
+          why the shared kernel is the problem. The test: seccomp throttles that kernel; a separate kernel
+          (~25 hypercalls) removes it. Impossible beats tedious. Transition: and this isn't theoretical, escapes land every year.
+        </aside>
+      </section>
+
+      <!-- CVE timeline (native table) -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">The escape record</div>
+        <h2>Container escapes land every year.</h2>
+        <table>
+          <tr><th>Year</th><th>Where</th><th>CVE</th><th>What happened</th><th>CVSS</th></tr>
+          <tr><td>2019</td><td>runc</td><td class="id">CVE-2019-5736</td><td>Overwrite host runc via /proc/self/exe</td><td style="color:var(--danger)">8.6</td></tr>
+          <tr><td>2020</td><td>containerd</td><td class="id">CVE-2020-15257</td><td>Escape via containerd-shim API</td><td>5.2</td></tr>
+          <tr><td>2022</td><td>CRI-O</td><td class="id">CVE-2022-0811</td><td>"cr8escape": host compromise via sysctl</td><td style="color:var(--danger)">8.8</td></tr>
+          <tr><td>2024</td><td>runc</td><td class="id">CVE-2024-21626</td><td>"Leaky Vessels": fd leak → host filesystem</td><td style="color:var(--danger)">8.6</td></tr>
+          <tr><td>2025</td><td>runc</td><td class="id">CVE-2025-31133 +2</td><td>Three escapes: masked paths, mount races, LSM bypass</td><td style="color:var(--danger)">High</td></tr>
+        </table>
+        <p class="hand-note" style="font-size:var(--step-0);margin-top:.4em">AWS: "we don't consider containers a security boundary."</p>
+      </section>
+
+      <!-- Copy Fail (figure) -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">The proof, in production</div>
+        <h2>Copy Fail: which boundaries held</h2>
+        <div class="figure">
+          <img src="../assets/research/copy-fail-by-architecture.svg" alt="Copy Fail by architecture" style="max-height:360px">
+        </div>
+        <p class="figcap"><span class="id">CVE-2026-31431</span>: a 732-byte exploit. Containers didn't hold; every separate-kernel architecture did.</p>
+      </section>
+
+      <!-- isolation models (native table) -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">The spectrum</div>
+        <h2>Four boundaries, four attack surfaces</h2>
+        <table>
+          <tr><th>Model</th><th>Boundary</th><th>Attack surface</th><th>Who uses it</th><th>ZT tier</th></tr>
+          <tr><td>Containers (runc)</td><td>Shared kernel</td><td style="color:var(--danger)">~457 syscalls</td><td>Docker, Daytona</td><td style="color:var(--danger)">not a boundary</td></tr>
+          <tr><td>gVisor</td><td>Userspace kernel (Go)</td><td style="color:#ffb357">274/350 syscalls</td><td>Modal, GKE</td><td style="color:var(--lime)">Enterprise</td></tr>
+          <tr><td>microVM (Firecracker)</td><td>Separate kernel, KVM</td><td style="color:var(--lime)">~25 hypercalls</td><td>e2b, Fly, Lambda</td><td style="color:var(--lime)">Advanced</td></tr>
+          <tr><td>Full VM</td><td>Separate kernel, full hypervisor</td><td style="color:var(--lime)">hypervisor surface</td><td>traditional cloud</td><td style="color:var(--lime)">Advanced</td></tr>
+        </table>
+        <p class="hand-note" style="font-size:var(--step-0);margin-top:.4em">tiers per Anthropic's zero-trust isolation guidance: sandboxed-exec = Enterprise, hardware isolation = Advanced.</p>
+      </section>
+
+      <!-- three exits (figure) -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">Three ways to leave the shared kernel</div>
+        <h2>Three teams, three architectures</h2>
+        <div class="figure">
+          <img src="../assets/research/three-exits-architectures.svg" alt="Three architectures that leave the shared kernel" style="max-height:360px">
+        </div>
+        <p class="figcap">Firecracker (own kernel, zero escapes since 2018) · gVisor (kernel in Go) · Cloud Hypervisor (own kernel + GPU)</p>
+      </section>
+
+      <!-- CoCo -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">One layer further · Confidential Containers</div>
+        <h2>When the host isn't in your trust boundary</h2>
+        <div class="cols">
+          <div class="card safe"><h3>What CoCo adds</h3>
+            <p>Kata + <span class="id">SEV-SNP</span> / <span class="id">TDX</span>: VM-grade isolation <strong>plus</strong>
+              encrypted memory + remote attestation. The host operator can't read the agent's RAM. The strongest
+              "keep my data with me."</p></div>
+          <div class="card danger"><h3>The cost</h3>
+            <p>Specific hardware, limited cloud regions, attestation infra to operate, larger TCB, ~500-VM/host density cap.
+              And it still doesn't stop the agent's <em>own</em> prompt-injected code.</p></div>
+        </div>
+        <p class="lead" style="margin-top:.5em">Choose it when you run untrusted code <em>and</em> don't trust the host. Otherwise a plain micro-VM is enough.</p>
+      </section>
+
+      <!-- leaving linux -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">It's not just Linux, or just us</div>
+        <h2>The whole industry converged here.</h2>
+        <div class="cols-3">
+          <div class="card safe"><h3>Cloud</h3><p>e2b, Modal, Fly, Vercel, AWS Lambda &amp; Bedrock AgentCore: separate kernel per session.</p></div>
+          <div class="card safe"><h3>Apple</h3><p><span class="id">apple/containerization</span> (macOS 26): every Linux container in its own VM, sub-second boot.</p></div>
+          <div class="card safe"><h3>Microsoft</h3><p><span class="id">MXC</span> (Build 2026): policy-driven agent isolation, micro-VM mode on the roadmap.</p></div>
+        </div>
+        <p class="lead" style="margin-top:.5em">When AWS, Google, Apple, and Microsoft all pick the same boundary, that's the signal.</p>
+      </section>
+
+      <!-- decision + close -->
+      <section class="title" data-background-color="#0b0c10">
+        <div class="kicker">Take this home</div>
+        <h2 style="font-size:2em">Pick the boundary, not the default.</h2>
+        <p class="lead">Own the host &amp; trust the code? A container is fine.</p>
+        <p class="lead">Running code the LLM wrote at runtime? <strong style="color:var(--lime)">Don't share a kernel.</strong></p>
+        <p class="byline">shekhar@last9.io</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="../node_modules/reveal.js/dist/reveal.js"></script>
+  <script src="../node_modules/reveal.js/plugin/highlight/highlight.js"></script>
+  <script src="../node_modules/reveal.js/plugin/notes/notes.js"></script>
+  <script>
+    Reveal.initialize({ hash:true, slideNumber:'c/t', transition:'fade', transitionSpeed:'fast',
+      width:1280, height:720, margin:0.04, center:false, controlsTutorial:false,
+      plugins:[ RevealHighlight, RevealNotes ] });
+  </script>
+</body>
+</html>

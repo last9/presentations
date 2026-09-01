@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" font-family="'JetBrains Mono Variable','JetBrains Mono',ui-monospace,monospace">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#7aa2f7"/>
+    </marker>
+    <marker id="ar-d" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#ff5f56"/>
+    </marker>
+    <marker id="ar-s" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="15" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#3ddc97"/>
+    </marker>
+    <marker id="ar-g" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#5c6478"/>
+    </marker>
+  </defs>
+
+  <!-- USER / EVENT -->
+  <rect x="40" y="232" width="190" height="96" rx="16" fill="#171922" stroke="#242838" stroke-width="2"/>
+  <text x="135" y="276" fill="#ecebe4" font-size="22" font-weight="600" text-anchor="middle">user · event</text>
+  <text x="135" y="304" fill="#9aa1b2" font-size="15" text-anchor="middle">slack · cron · webhook</text>
+
+  <!-- LLM core -->
+  <circle cx="480" cy="280" r="108" fill="#101a33" stroke="#7aa2f7" stroke-width="2.5"/>
+  <text x="480" y="268" fill="#7aa2f7" font-size="40" font-weight="700" text-anchor="middle">LLM</text>
+  <text x="480" y="300" fill="#9aa1b2" font-size="15" text-anchor="middle">reason → decide</text>
+
+  <!-- memory cylinder feeding the LLM -->
+  <g>
+    <ellipse cx="480" cy="468" rx="62" ry="14" fill="#171922" stroke="#242838" stroke-width="2"/>
+    <path d="M418 468 v-44 a62 14 0 0 0 124 0 v44" fill="#171922" stroke="#242838" stroke-width="2"/>
+    <ellipse cx="480" cy="424" rx="62" ry="14" fill="#12141d" stroke="#242838" stroke-width="2"/>
+    <text x="480" y="452" fill="#9aa1b2" font-size="15" text-anchor="middle">memory · state</text>
+  </g>
+  <path d="M480 414 V 403" stroke="#5c6478" stroke-width="2"/>
+  <path d="M480 390 L472 404 L488 404 Z" fill="#5c6478"/>
+
+  <!-- TOOL (danger) -->
+  <rect x="730" y="220" width="200" height="120" rx="16" fill="#2a1413" stroke="#ff5f56" stroke-width="2.5"/>
+  <text x="830" y="262" fill="#ff5f56" font-size="22" font-weight="700" text-anchor="middle">TOOL CALL</text>
+  <text x="830" y="292" fill="#ecebe4" font-size="15" text-anchor="middle">shell · cloud API</text>
+  <text x="830" y="314" fill="#ecebe4" font-size="15" text-anchor="middle">db · message · $$</text>
+
+  <!-- arrows -->
+  <path d="M232 280 H 366" stroke="#7aa2f7" stroke-width="2.5" marker-end="url(#ar)"/>
+  <text x="298" y="266" fill="#9aa1b2" font-size="14" text-anchor="middle">prompt+state</text>
+
+  <path d="M590 256 H 726" stroke="#ff5f56" stroke-width="3" marker-end="url(#ar-d)"/>
+  <text x="658" y="240" fill="#ff5f56" font-size="14" text-anchor="middle">act</text>
+
+  <path d="M726 318 C 670 366, 618 345, 582 328" fill="none" stroke="#3ddc97" stroke-width="2.5" marker-end="url(#ar-s)"/>
+  <text x="648" y="372" fill="#3ddc97" font-size="14" text-anchor="middle">observation</text>
+
+  <!-- loop hint -->
+  <path d="M430 165 C 450 120, 510 120, 530 165" fill="none" stroke="#5c6478" stroke-width="2" stroke-dasharray="4 5" marker-end="url(#ar)"/>
+  <text x="480" y="108" fill="#5c6478" font-size="14" text-anchor="middle">repeat</text>
+
+  <!-- hand-drawn payoff -->
+  <text x="830" y="392" fill="#ffc56d" font-size="21" text-anchor="middle"
+        font-family="'Shantell Sans Variable','Shantell Sans','Comic Sans MS',cursive"
+        transform="rotate(-2 830 392)">the moment it can call tools,</text>
+  <text x="830" y="420" fill="#ffc56d" font-size="21" text-anchor="middle"
+        font-family="'Shantell Sans Variable','Shantell Sans','Comic Sans MS',cursive"
+        transform="rotate(-2 830 420)">it's running code.</text>
+</svg>

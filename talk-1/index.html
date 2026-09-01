@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Running Untrusted Agent Code at Scale</title>
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reset.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reveal.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/inter/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/jetbrains-mono/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/shantell-sans/index.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/plugin/highlight/monokai.css">
+  <link rel="stylesheet" href="../shared/theme.css">
+</head>
+<body>
+  <div class="reveal">
+    <!-- persistent brand on every slide -->
+    <img class="brand-mark" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="deck-foot"><span><b>Last9</b> &nbsp;·&nbsp; untrusted agents at scale</span></div>
+
+    <div class="slides">
+
+      <!-- 1 · TITLE -->
+      <section class="title" data-background-color="#0e0f13">
+        <div class="kicker">Security &amp; safety in agentic systems</div>
+        <h1>Running untrusted agent code<br><span style="color:var(--lime)">at scale</span></h1>
+        <p class="sub">Everyone's building agents. How do you deploy them securely ,
+          and keep the data with you?</p>
+        <p class="byline">Shekhar Patil · Last9</p>
+      </section>
+
+      <!-- 2 · COLD OPEN A -->
+      <section class="title" data-background-color="#0e0f13">
+        <div class="kicker">A true story · June 2026</div>
+        <p class="big">Meta's account-recovery bot changed a user's email and password.</p>
+        <p class="huge" style="color:var(--lime)">It just needed to be asked.</p>
+        <aside class="notes">
+          Open cold, no throat-clearing. This is real and recent, June 2026, reported by Malwarebytes.
+          Meta's account-recovery support bot would change an account's email and password. It just
+          needed to be asked. Let that absurdity sit for a beat before slide two.
+        </aside>
+      </section>
+
+      <!-- 3 · COLD OPEN B (the lesson) -->
+      <section class="title" data-background-color="#0e0f13">
+        <div class="kicker">How it happened</div>
+        <p class="big">Attackers ran a normal reset flow and told it to swap the email. It complied,
+          drained the one-time codes, and took over accounts: a White House one, Sephora, a Space Force official.</p>
+        <p class="hand" style="font-size:var(--step-2);color:var(--lime);max-width:28ch">
+          the bot wasn't hacked. it did exactly what it was told, with power it should never have had on its own.</p>
+        <aside class="notes">
+          Walk the mechanics fast: attackers geo-matched with a VPN, started a normal password reset, and
+          asked the bot to change the email, then collected the one-time codes. Name the victims for stakes.
+          The lesson is the spine of the whole talk: the bot wasn't hacked, it did exactly what it was told,
+          with permissions it should never have wielded on its own judgment. The fix isn't a smarter prompt,
+          it's enforcing the boundary below the agent. Transition: so what IS an agent, and why does this keep happening?
+        </aside>
+      </section>
+
+      <!-- 4 · MANDATORY · what is an agent -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">Required baseline</div>
+        <h2>What <em>is</em> an agent?</h2>
+        <p class="dim" style="font-size:.74em;margin-bottom:.4em">An <strong style="color:var(--ink)">LLM in a loop</strong> that takes <strong style="color:var(--ink)">actions</strong>, keeps <strong style="color:var(--ink)">state</strong>, and acts in the world, not a chatbot, not RPA.</p>
+        <svg class="diagram" viewBox="0 0 1120 312" fill="none" style="max-height:228px;margin:0 auto">
+          <defs>
+            <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6b6b78"/></marker>
+            <marker id="ad" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ff6b5e"/></marker>
+            <marker id="as" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#c4f000"/></marker>
+          </defs>
+          <!-- user / event -->
+          <rect x="28" y="104" width="216" height="92" rx="14" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <text x="136" y="146" fill="#fafafa" font-size="22" font-weight="600" text-anchor="middle">user · event</text>
+          <text x="136" y="174" fill="#a3a3ad" font-size="14" text-anchor="middle">slack · cron · webhook</text>
+          <!-- LLM core -->
+          <circle cx="560" cy="150" r="82" fill="#14160a" stroke="#c4f000" stroke-width="2.5"/>
+          <text x="560" y="145" fill="#c4f000" font-size="34" font-weight="700" text-anchor="middle">LLM</text>
+          <text x="560" y="173" fill="#a3a3ad" font-size="15" text-anchor="middle">reason → decide</text>
+          <!-- tool -->
+          <rect x="900" y="100" width="200" height="100" rx="14" fill="#2a140f" stroke="#ff6b5e" stroke-width="2.5"/>
+          <text x="1000" y="138" fill="#ff6b5e" font-size="20" font-weight="700" text-anchor="middle">TOOL CALL</text>
+          <text x="1000" y="164" fill="#fafafa" font-size="14" text-anchor="middle">shell · cloud API</text>
+          <text x="1000" y="186" fill="#fafafa" font-size="14" text-anchor="middle">db · message · $$</text>
+          <!-- memory -->
+          <ellipse cx="560" cy="298" rx="66" ry="14" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <path d="M494 298 v-50 a66 14 0 0 0 132 0 v50" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <ellipse cx="560" cy="248" rx="66" ry="14" fill="#16161b" stroke="#33333c" stroke-width="2"/>
+          <text x="560" y="278" fill="#a3a3ad" font-size="14" text-anchor="middle">memory · state</text>
+          <path d="M560 246 V 240" stroke="#6b6b78" stroke-width="2" marker-end="url(#a)"/>
+          <!-- arrows -->
+          <path d="M248 150 H 472" stroke="#6b6b78" stroke-width="2.5" marker-end="url(#a)"/>
+          <text x="348" y="136" fill="#a3a3ad" font-size="14" text-anchor="middle">prompt + state</text>
+          <!-- act path passes through a human-in-the-loop approval gate -->
+          <path d="M648 134 H 718" stroke="#ff6b5e" stroke-width="3" marker-end="url(#ad)"/>
+          <text x="683" y="120" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle">proposes</text>
+          <rect x="722" y="115" width="98" height="38" rx="10" fill="#14160a" stroke="#c4f000" stroke-width="2"/>
+          <text x="771" y="139" fill="#c4f000" font-size="13" font-weight="600" text-anchor="middle">approve?</text>
+          <path d="M824 134 H 896" stroke="#ff6b5e" stroke-width="3" marker-end="url(#ad)"/>
+          <text x="860" y="120" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle">execute</text>
+          <path d="M900 178 C 800 234, 662 222, 642 170" stroke="#c4f000" stroke-width="2.5" marker-end="url(#as)"/>
+          <text x="778" y="240" fill="#c4f000" font-size="14" text-anchor="middle">result</text>
+          <path d="M514 66 C 534 32, 586 32, 606 66" stroke="#6b6b78" stroke-width="2" stroke-dasharray="4 5" marker-end="url(#a)"/>
+          <text x="560" y="26" fill="#6b6b78" font-size="13" text-anchor="middle">repeat</text>
+        </svg>
+        <div class="row" style="gap:.7em;background:var(--danger-tint);border:1px solid var(--danger);border-radius:12px;padding:.45em .8em;margin-top:.3em">
+          <span class="chip danger">the payoff</span>
+          <span style="margin:0;font-size:.95em">An agent isn't an "AI feature." It's a <strong>code-execution system</strong>.</span>
+        </div>
+      </section>
+
+      <!-- 5 · whose code -->
+      <section data-background-color="#0e0f13">
+        <h2>Whose code is it, anyway?</h2>
+        <div class="cols-3">
+          <div class="card"><h3>🤖 LLM-generated</h3><p>The model writes a command, a query, a script, at runtime, unreviewed.</p></div>
+          <div class="card"><h3>📦 Third-party skills</h3><p>Installed from a registry. You didn't write it; you can't fully audit it.</p></div>
+          <div class="card"><h3>👤 Customer-authored</h3><p>Tenants bring their own skills onto your shared platform.</p></div>
+        </div>
+        <p class="lead" style="margin-top:.7em">The code's <strong>origin changed</strong>: written at runtime,
+          prompt-injected from a webhook. One sentence now does what used to take a supply-chain compromise.</p>
+      </section>
+
+      <!-- 6 · prompts can't save you -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker danger">The comfortable illusion</div>
+        <h2>"We'll add guardrails to the prompt."</h2>
+        <p class="lead">A prompt is an <em>instruction</em>; it runs before the model misbehaves. A tool call
+          is a <em>syscall</em>; once code runs, your prompt is a <span class="danger">suggestion</span>.</p>
+        <p class="dim">Chipotle's support bot was jailbroken into writing code. The takeaway (Opus Research):
+          <em>"enforce scope at the product level, not just in the prompt."</em></p>
+        <p class="hand-note" style="font-size:var(--step-0)">you can't contain a running process with English.</p>
+        <aside class="notes">
+          The seductive wrong answer: "we'll just put guardrails in the system prompt." A prompt is an
+          instruction that runs before the model decides to misbehave; a tool call is a syscall, and once
+          code is running the prompt is a suggestion. Concrete proof: Chipotle's bot got talked into writing
+          code, scope creep, and the analyst's takeaway is literally our thesis: enforce scope at the product
+          level, not just the prompt. Transition: so where did we start? Honestly, with no isolation at all.
+        </aside>
+      </section>
+
+      <!-- 7 · origin -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">How we got here · Act 1</div>
+        <h2>The naive version worked great, for one team.</h2>
+        <p>Original <span class="id">mithai</span> (Python): a skill is imported straight into the engine process.</p>
+        <pre><code class="language-python" data-trim data-noescape>
+def handle(name, input, ctx):
+    # runs in-process: full filesystem, env vars, network, memory.
+    # a bug, or a hostile skill, owns the engine. no sandbox.
+    return subprocess.run(input["cmd"], shell=True)
+        </code></pre>
+        <p class="row"><span class="chip danger">no isolation</span>
+          <span class="chip danger">no resource limits</span>
+          <span class="chip danger">shared memory + creds</span></p>
+      </section>
+
+      <!-- 8 · THESIS -->
+      <section class="divider" data-background-color="#0b0c10">
+        <div class="actno">THE ONE IDEA</div>
+        <p class="thesis">Isolation must be
+          <span class="struct">structural</span>, not <span class="conv">conventional</span>.</p>
+        <p class="lead dim" style="max-width:32ch;margin-top:.5em">Enforced by the layer
+          <em>below</em> the agent: the crypto, the database key, the kernel. The most structural
+          boundary of all is a <span style="color:var(--lime)">kernel the agent doesn't share</span>.</p>
+        <p class="hand-note" style="font-size:var(--step-0);margin-top:.5em">the test: does it make the attack <em>impossible</em>, or just <em>tedious</em>?</p>
+        <aside class="notes">
+          This is the whole talk in one line. Say it slowly. Structural means the guarantee lives
+          BELOW the agent, in a layer the agent can't reach: the crypto, the DB key, the kernel.
+          Conventional means a rule in the agent's own code that we hope it follows.
+          Then give them the test they can take home, the one Anthropic's zero-trust framework uses:
+          does this control make the attack IMPOSSIBLE, or just TEDIOUS? A rate limit is tedious.
+          A separate kernel is impossible. Prefer removing a capability over throttling it.
+          Transition: let's watch a hostile agent try five things, and judge each defense by that test.
+        </aside>
+      </section>
+
+      <!-- 9 · threat model -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">The plan for the next 20 minutes</div>
+        <h2>Five things a hostile agent will try</h2>
+        <table>
+          <tr><th>What if the agent…</th><th>Grounded in engineer9</th><th>Stopped by</th></tr>
+          <tr><td>reads another tenant's secrets</td><td>holds AWS / Slack / Linear creds</td><td class="id">construction-bound crypto</td></tr>
+          <tr><td>writes &amp; executes a binary</td><td>it can run shell</td><td class="id">Landlock sandbox</td></tr>
+          <tr><td>fork-bombs / loops forever</td><td>hourly heartbeat wakes it</td><td class="id">process-group kill</td></tr>
+          <tr><td>burns $50k of tokens</td><td>calls Claude in a loop</td><td class="id">pre-call budget gate</td></tr>
+          <tr><td>deploys malicious code</td><td>skills ship via git webhook</td><td class="id">HMAC + atomic deploy</td></tr>
+        </table>
+        <p class="hand-note" style="font-size:var(--step-0)">we assume the code is hostile, and run it anyway.</p>
+      </section>
+
+      <!-- 10 · ATTACK 1 -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker danger">Attack 1 · secret theft</div>
+        <h2>"I'll read the other tenant's API keys."</h2>
+        <p class="lead">engineer9 for Acme holds Acme's AWS key. The instance for Globex shares the
+          same process pool and one Postgres. One <span class="id">SELECT</span> away?</p>
+      </section>
+
+      <!-- 11 · DEFENSE 1 -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker safe">Structural control · the credential store</div>
+        <h3>Bound to one agent at <em>construction</em>.</h3>
+        <pre><code class="language-go" data-trim data-noescape>
+// Cross-agent access is structurally impossible, workspace_id and
+// agent_id are bound at construction; the key is derived from them.
+func NewPGStore(pool, masterKey, workspaceID, agentID) (Store, error)
+
+SELECT encrypted_value FROM credentials
+ WHERE workspace_id = $1 AND agent_id = $2 AND name = $3
+        </code></pre>
+        <p>Per-credential <span class="id">Argon2id → AES-256-GCM</span>. You can't <em>name</em> another agent's secret.</p>
+        <span class="verdict">✓ contained, by the database key, not by careful code</span>
+      </section>
+
+      <!-- 12 · ATTACK 2 -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker danger">Attack 2 · sandbox escape</div>
+        <h2>"I'll write a binary and run it."</h2>
+        <p class="lead">The agent can write files in its working dir. So it drops an ELF and execs it ,
+          now it's arbitrary native code, off the rails.</p>
+      </section>
+
+      <!-- 13 · DEFENSE 2 -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker safe">Structural control · Landlock LSM (kernel)</div>
+        <h3>Writable, but <em>not executable</em>.</h3>
+        <pre><code class="language-go" data-trim data-noescape>
+AccessReadWrite    // agent's own dir: create/modify files…
+                   // …but the exec bit is withheld
+AccessReadExecute  // system paths only: /usr, /lib
+// /proc/self only, can't read /proc/&lt;pid&gt;/environ of neighbours
+        </code></pre>
+        <p>A <span class="id">sandbox-launcher</span> applies Landlock, then execs the agent.
+          The kernel refuses the exec regardless of what the code does.</p>
+        <span class="verdict">✓ contained, the LSM doesn't care how clever the code is</span>
+        <p class="hand-note" style="font-size:.7em;margin-top:.5em">but it's still a shared kernel. hold that thought, we'll hit its ceiling.</p>
+      </section>
+
+      <!-- 14 · ATTACK 3 + honesty -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker danger">Attack 3 · runaway process &amp; an honest gap</div>
+        <h2>"I'll fork forever / never return."</h2>
+        <div class="cols">
+          <div class="card safe"><h3>What we do</h3>
+            <p>One OS <strong>process group</strong> per agent (<span class="id">Setpgid</span>).
+              Stop = hierarchical <span class="id">SIGTERM→SIGKILL</span> of the whole tree. A crash is confined.</p></div>
+          <div class="card danger"><h3>What we don't (yet)</h3>
+            <p>No per-agent CPU/memory <span class="id">cgroups v2</span> quota. A tight loop can still hog a core ,
+              and that motivates the last act.</p></div>
+        </div>
+      </section>
+
+      <!-- 15 · ATTACK 4 -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker danger">Attack 4 · runaway spend</div>
+        <h2>"I'll burn $50k in a retry loop."</h2>
+        <p class="lead">An agent stuck in a tool-error loop can spend more in an hour than your team
+          spends in a month. Token spend is the new blast radius.</p>
+      </section>
+
+      <!-- 16 · DEFENSE 4 -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker safe">Structural control · pre-call budget gate</div>
+        <h3>Check the budget <em>before</em> the call.</h3>
+        <pre><code class="language-go" data-trim data-noescape>
+func BudgetCheck(ctx, pool, workspaceID) (*Budget, error) {
+    if hardCap != nil && totalCost >= *hardCap {
+        return &budget, ErrHardCapExceeded   // block the call
+    }
+    if softCap != nil && totalCost >= *softCap {
+        return &budget, ErrSoftCapExceeded   // downgrade Opus → Haiku
+    }
+}
+        </code></pre>
+        <p>Atomic per-<span class="id">(workspace, agent, model)</span> counters, in micro-USD integers.</p>
+        <span class="verdict blocked">⛔ blocked before a single token is spent</span>
+      </section>
+
+      <!-- 17 · ATTACK 5 -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker danger">Attack 5 · supply chain</div>
+        <h2>"I'll push malicious code through your deploy."</h2>
+        <p class="lead">Skills ship via git webhook. Spoof it, smuggle a <span class="id">../</span> path or a
+          symlink, plant a setuid binary, own the box through the pipeline.</p>
+      </section>
+
+      <!-- 18 · DEFENSE 5 -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker safe">Structural control · every push is treated as hostile</div>
+        <div class="cols">
+          <div class="stack">
+            <p>✓ <span class="id">HMAC-SHA256</span> verify + 5-min replay window</p>
+            <p>✓ reject <span class="id">../</span> traversal &amp; symlinks</p>
+            <p>✓ strip setuid/setgid: <span class="id">mode &amp; 0755</span></p>
+            <p>✓ size / file-count caps (no zip-bombs)</p>
+          </div>
+          <div class="card"><h3>atomic + reversible</h3>
+            <p>Deploy writes a new version dir, then flips a <span class="id">symlink</span>. It fully
+              lands or nothing changes. Rollback is one more flip.</p></div>
+        </div>
+        <span class="verdict">✓ contained, verified, sandboxed, reversible</span>
+      </section>
+
+      <!-- 19 · accountability -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">The cross-cutting layer</div>
+        <h2>Every attempt is on the record, tamper-evidently.</h2>
+        <pre><code class="language-go" data-trim data-noescape>
+// per-workspace SHA-256 hash chain: each event hashes the one before
+data := fmt.Sprintf("%s|%s|%s|%s|%s|%s",
+    prev, evt.Timestamp, evt.EventType,
+    evt.WorkspaceID, evt.AgentID, evt.RequestID)
+hash := sha256.Sum256([]byte(data))   // tamper one row → chain breaks
+        </code></pre>
+        <p>Append-only, batched, date-partitioned. "What did it do, and can I prove it?", yes.</p>
+      </section>
+
+      <!-- 20 · DEMO -->
+      <section class="divider" data-background-color="#0b0c10">
+        <div class="actno">ACT III · DEMO</div>
+        <h2>Let a hostile agent try all five.</h2>
+        <p class="lead dim" style="max-width:30ch">Recorded live, read a neighbor's secret, exec a planted
+          binary, loop the budget, spoof a deploy. Each fails, and lands in the audit log.</p>
+      </section>
+
+      <!-- 21 · rings recap -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">The picture to remember</div>
+        <h2>Defense in depth, by <em>who enforces it</em></h2>
+        <div class="cols" style="grid-template-columns:.8fr 1.2fr; align-items:center; gap:1.6em">
+          <svg class="diagram" viewBox="0 0 440 440" fill="none" style="max-height:340px">
+            <circle cx="220" cy="220" r="200" fill="#7b7b86" opacity="0.05"/><circle cx="220" cy="220" r="200" fill="none" stroke="#7b7b86" stroke-width="3"/>
+            <circle cx="220" cy="220" r="152" fill="#b58aff" opacity="0.06"/><circle cx="220" cy="220" r="152" fill="none" stroke="#b58aff" stroke-width="3"/>
+            <circle cx="220" cy="220" r="104" fill="#6c8ebf" opacity="0.08"/><circle cx="220" cy="220" r="104" fill="none" stroke="#6c8ebf" stroke-width="3"/>
+            <circle cx="220" cy="220" r="60" fill="#14160a"/><circle cx="220" cy="220" r="60" fill="none" stroke="#c4f000" stroke-width="3"/>
+            <circle cx="220" cy="220" r="32" fill="#2a140f" stroke="#ff6b5e" stroke-width="2.5"/>
+            <text x="220" y="218" fill="#ff6b5e" font-size="15" font-weight="700" text-anchor="middle">AGENT</text>
+            <text x="220" y="234" fill="#ff8e84" font-size="10" text-anchor="middle">untrusted</text>
+          </svg>
+          <div class="stack" style="gap:.7em;font-size:.82em">
+            <div class="row" style="gap:.7em"><span style="width:16px;height:16px;border-radius:50%;background:#ff6b5e;display:inline-block;flex:0 0 auto"></span><span><strong>agent</strong> &nbsp;<span class="dim">untrusted code, at the center</span></span></div>
+            <div class="row" style="gap:.7em"><span style="width:16px;height:16px;border-radius:50%;background:#c4f000;display:inline-block;flex:0 0 auto"></span><span><strong>kernel</strong> &nbsp;<span class="dim">Landlock + process group</span></span></div>
+            <div class="row" style="gap:.7em"><span style="width:16px;height:16px;border-radius:50%;background:#6c8ebf;display:inline-block;flex:0 0 auto"></span><span><strong>crypto</strong> &nbsp;<span class="dim">per-agent AES-GCM keys</span></span></div>
+            <div class="row" style="gap:.7em"><span style="width:16px;height:16px;border-radius:50%;background:#b58aff;display:inline-block;flex:0 0 auto"></span><span><strong>database</strong> &nbsp;<span class="dim">(workspace, agent) primary key</span></span></div>
+            <div class="row" style="gap:.7em"><span style="width:16px;height:16px;border-radius:50%;background:#7b7b86;display:inline-block;flex:0 0 auto"></span><span><strong>framework</strong> &nbsp;<span class="dim">budgets · audit · deploy</span></span></div>
+          </div>
+        </div>
+        <p class="hand-note" style="font-size:var(--step-0);margin-top:.3em">every ring is enforced below the agent, never by its code.</p>
+      </section>
+
+      <!-- 22 · containers not enough -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">"Why not just a container?"</div>
+        <h2>A container shares the host kernel.</h2>
+        <p class="lead">Namespaces change what a process <em>sees</em>. They don't change what the kernel <em>does</em>.</p>
+        <div class="row" style="gap:2em;margin:.2em 0 .1em">
+          <span class="row" style="gap:.4em"><span class="big" style="color:var(--danger)">457</span>
+            <span class="dim" style="font-size:.66em">syscalls reachable from a<br>container (Docker blocks ~49)</span></span>
+          <span class="dim" style="font-size:1.4em">→</span>
+          <span class="row" style="gap:.4em"><span class="big" style="color:var(--lime)">~25</span>
+            <span class="dim" style="font-size:.66em">KVM hypercalls to a<br>separate-kernel micro-VM</span></span>
+        </div>
+        <p class="row" style="margin-top:.2em"><span class="chip">process</span><span class="dim">→</span>
+          <span class="chip">container</span><span class="dim">→</span>
+          <span class="chip safe">LSM · us today</span><span class="dim">→</span>
+          <span class="chip safe">micro-VM</span><span class="dim">→</span>
+          <span class="chip">confidential VM</span><span class="dim">→</span>
+          <span class="chip">bare metal</span></p>
+        <p class="hand-note" style="font-size:var(--step-0)">runc escapes land yearly. AWS: "we don't consider containers a security boundary."</p>
+      </section>
+
+      <!-- 23 · the boundary that holds -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker safe">Where the boundary actually is</div>
+        <h2>The one that holds doesn't <em>share a kernel</em>.</h2>
+        <div class="cols">
+          <div class="stack">
+            <p>✓ a <strong>separate kernel per tenant</strong>, no shared escape surface</p>
+            <p>✓ clean CPU/mem/disk quotas (our cgroups gap, gone)</p>
+            <p>✓ a unit for <strong>data residency</strong>, the VM lives in the customer's cloud</p>
+          </div>
+          <div class="stack">
+            <p><span class="id">Firecracker</span>: ~125ms boot, 4ms restore,
+              <strong>zero host escapes since 2018</strong>.</p>
+            <p class="dim">The industry converged here: e2b, Modal, Fly, Lambda, now Apple &amp; Microsoft.</p>
+          </div>
+        </div>
+        <p class="lead">Landlock hit the shared-kernel ceiling. A separate kernel is the next layer, <strong>and you can buy it.</strong></p>
+        <aside class="notes">
+          The honest pivot. Landlock was real work and it holds against a lot, but it is hardening a
+          kernel the agent still shares. The ceiling is the kernel itself. Apply the test: a separate
+          kernel makes escape impossible, not tedious. The good news for the audience: you don't have
+          to build this. Firecracker boots in ~125ms, restores in 4ms, zero host escapes since 2018,
+          and the whole industry already converged here. Transition: step back, this has a name.
+        </aside>
+      </section>
+
+      <!-- 24 · zero trust mapping -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker safe">Step back</div>
+        <h2>We built zero trust for agents.</h2>
+        <table>
+          <tr><th>What we built</th><th>Zero-trust principle</th></tr>
+          <tr><td>structural, not conventional</td><td>"impossible, not tedious" · assume breach</td></tr>
+          <tr><td>separate kernel / micro-VM</td><td>remove the capability, don't throttle it</td></tr>
+          <tr><td>per-agent crypto, construction-bound</td><td>least privilege · agent identity</td></tr>
+          <tr><td>approval levels + skill manifest</td><td>least agency (OWASP)</td></tr>
+          <tr><td>pre-call budget gate</td><td>resource-exhaustion defense</td></tr>
+          <tr><td>hash-chained audit</td><td>immutable, integrity-verified trail</td></tr>
+        </table>
+        <p class="row" style="margin-top:.5em"><span class="chip safe">Anthropic · Zero Trust for AI Agents</span>
+          <span class="chip">NIST SP 800-207</span><span class="chip">OWASP least agency</span>
+          <span class="chip">US federal ZT by 2027</span></p>
+        <aside class="notes">
+          We didn't set out to build "zero trust." We set out to run untrusted code without getting
+          burned, and we landed on the same place the security industry did. Walk the left column,
+          these are the controls we just demoed, and name the principle each one is. The point:
+          this isn't a bespoke trick, it's the established posture for the next threat landscape,
+          and Anthropic, NIST, OWASP, and the US federal government all now name it. That's the
+          credibility line for a skeptical room. Transition: so where are we actually, honestly?
+        </aside>
+      </section>
+
+      <!-- 25 · tier self-assessment -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">Honest map · where we are on the curve</div>
+        <h2>Foundation → Enterprise → Advanced</h2>
+        <table>
+          <tr><th>Area</th><th>Where we are</th><th>Next rung</th></tr>
+          <tr><td>Isolation</td><td><span class="chip safe">Enterprise</span> Landlock + process group</td><td>Advanced: micro-VM / SEV-TDX</td></tr>
+          <tr><td>Audit</td><td><span class="chip safe">Enterprise</span> hash-chained, immutable</td><td>real-time SIEM correlation</td></tr>
+          <tr><td>Secrets</td><td><span class="chip">Foundation</span> per-agent envelope crypto</td><td>short-lived tokens, hardware-bound</td></tr>
+          <tr><td>Deploy</td><td><span class="chip safe">Enterprise</span> verified + atomic rollback</td><td>signed configs, attestation</td></tr>
+          <tr><td>Inputs</td><td><span class="chip danger">gap</span> no spotlighting yet</td><td>spotlighting + anomaly detection</td></tr>
+        </table>
+        <p class="hand-note" style="font-size:var(--step-0);margin-top:.3em">honest gaps, but rungs on a ladder, not a list of failures.</p>
+        <aside class="notes">
+          The maturity model lets you be honest without looking weak. Anthropic's framework has three
+          tiers, Foundation, Enterprise, Advanced, and says Advanced becomes Enterprise as the field
+          moves. We're Enterprise on isolation, audit, and deploy; Foundation on secrets, that's the
+          credentials-in-the-snapshot story and the fix is short-lived tokens bound to hardware; and
+          we have a real gap on input defenses like spotlighting. Saying this earns trust and seeds
+          the best Q&A. Transition: so, the one idea to take home.
+        </aside>
+      </section>
+
+      <!-- 25 · close -->
+      <section class="title" data-background-color="#0b0c10">
+        <p class="thesis"><span class="struct">structural</span>, not <span class="conv">conventional</span>.</p>
+        <p class="lead" style="margin-top:.4em">The most structural boundary is a kernel the agent doesn't share.
+          The goal was never to make the agent trustworthy.</p>
+        <p class="huge" style="color:var(--lime)">It's to make trust unnecessary.</p>
+        <p class="byline">shekhar@last9.io</p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="../node_modules/reveal.js/dist/reveal.js"></script>
+  <script src="../node_modules/reveal.js/plugin/highlight/highlight.js"></script>
+  <script src="../node_modules/reveal.js/plugin/notes/notes.js"></script>
+  <script>
+    Reveal.initialize({
+      hash:true, slideNumber:'c/t', transition:'fade', transitionSpeed:'fast',
+      width:1280, height:720, margin:0.04, center:false, controlsTutorial:false,
+      plugins:[ RevealHighlight, RevealNotes ],
+    });
+  </script>
+</body>
+</html>

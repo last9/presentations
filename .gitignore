@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+*.log
+
+# Local presentation exports and browser artifacts
+*.tmp
+playwright-report/
+test-results/

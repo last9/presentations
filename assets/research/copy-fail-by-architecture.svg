@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <rect width="960" height="520" fill="#0f0f14" rx="8"/>
+
+  <!-- Title -->
+  <text x="40" y="32" fill="#eaeaf0" font-size="16" font-weight="700">Copy Fail, Tested by Architecture</text>
+  <text x="40" y="52" fill="#b4b4be" font-size="12">CVE-2026-31431: which isolation architectures held when the shared kernel didn't</text>
+
+  <!-- Column headers -->
+  <text x="225" y="92" fill="#eaeaf0" font-size="13" font-weight="700" text-anchor="middle">Containers</text>
+  <text x="225" y="108" fill="#a3a3ad" font-size="10" text-anchor="middle">shared host kernel</text>
+
+  <text x="430" y="92" fill="#eaeaf0" font-size="13" font-weight="700" text-anchor="middle">Firecracker</text>
+  <text x="430" y="108" fill="#a3a3ad" font-size="10" text-anchor="middle">per-guest kernel (KVM)</text>
+
+  <text x="635" y="92" fill="#eaeaf0" font-size="13" font-weight="700" text-anchor="middle">gVisor / Sentry</text>
+  <text x="635" y="108" fill="#a3a3ad" font-size="10" text-anchor="middle">userspace kernel</text>
+
+  <text x="840" y="92" fill="#eaeaf0" font-size="13" font-weight="700" text-anchor="middle">Cloud Hypervisor</text>
+  <text x="840" y="108" fill="#a3a3ad" font-size="10" text-anchor="middle">per-guest kernel (KVM)</text>
+
+  <!-- Outcome band -->
+  <rect x="130" y="125" width="190" height="44" fill="#ff6b5e" fill-opacity="0.12" stroke="#ff6b5e" stroke-width="1.5" rx="4"/>
+  <text x="225" y="153" fill="#ff6b5e" font-size="15" font-weight="700" text-anchor="middle">DID NOT HOLD</text>
+
+  <rect x="335" y="125" width="190" height="44" fill="#c4f000" fill-opacity="0.12" stroke="#c4f000" stroke-width="1.5" rx="4"/>
+  <text x="430" y="153" fill="#c4f000" font-size="15" font-weight="700" text-anchor="middle">HELD</text>
+
+  <rect x="540" y="125" width="190" height="44" fill="#c4f000" fill-opacity="0.12" stroke="#c4f000" stroke-width="1.5" rx="4"/>
+  <text x="635" y="153" fill="#c4f000" font-size="15" font-weight="700" text-anchor="middle">HELD</text>
+
+  <rect x="745" y="125" width="190" height="44" fill="#c4f000" fill-opacity="0.12" stroke="#c4f000" stroke-width="1.5" rx="4"/>
+  <text x="840" y="153" fill="#c4f000" font-size="15" font-weight="700" text-anchor="middle">HELD</text>
+
+  <!-- Platforms section -->
+  <text x="40" y="200" fill="#a3a3ad" font-size="10" font-weight="700" letter-spacing="0.5">PLATFORMS</text>
+
+  <g transform="translate(140, 220)">
+    <text x="0" y="0" fill="#eaeaf0" font-size="12" font-weight="600">Daytona</text>
+    <text x="0" y="20" fill="#eaeaf0" font-size="12" font-weight="600">Cloudflare Sandboxes<tspan fill="#ff6b5e" font-weight="700">*</tspan></text>
+  </g>
+
+  <g transform="translate(345, 220)">
+    <text x="0" y="0" fill="#eaeaf0" font-size="12" font-weight="600">E2B</text>
+    <text x="0" y="20" fill="#eaeaf0" font-size="12" font-weight="600">Fly Sprites</text>
+    <text x="0" y="40" fill="#eaeaf0" font-size="12" font-weight="600">Vercel Sandbox</text>
+    <text x="0" y="60" fill="#eaeaf0" font-size="12" font-weight="600">AWS Lambda</text>
+  </g>
+
+  <g transform="translate(550, 220)">
+    <text x="0" y="0" fill="#eaeaf0" font-size="12" font-weight="600">Modal</text>
+    <text x="0" y="20" fill="#eaeaf0" font-size="12" font-weight="600">GKE Agent Sandbox</text>
+  </g>
+
+  <g transform="translate(755, 220)">
+    <text x="0" y="0" fill="#eaeaf0" font-size="12" font-weight="600">Fly GPU</text>
+    <text x="0" y="20" fill="#eaeaf0" font-size="12" font-weight="600">Northflank (Kata)</text>
+  </g>
+
+  <!-- Divider -->
+  <line x1="40" y1="320" x2="920" y2="320" stroke="#2b2b33" stroke-width="1"/>
+
+  <!-- Response section -->
+  <text x="40" y="345" fill="#a3a3ad" font-size="10" font-weight="700" letter-spacing="0.5">RESPONSE REQUIRED</text>
+
+  <g transform="translate(140, 365)">
+    <text x="0" y="0" fill="#eaeaf0" font-size="11">kernel patch</text>
+    <text x="0" y="16" fill="#eaeaf0" font-size="11">algif_aead blacklist</text>
+    <text x="0" y="32" fill="#eaeaf0" font-size="11">runner credential rotation</text>
+    <text x="0" y="48" fill="#eaeaf0" font-size="11">signup pause</text>
+    <text x="0" y="70" fill="#ff6b5e" font-size="11" font-style="italic" font-weight="600">Daytona: ~12 hours</text>
+  </g>
+
+  <g transform="translate(345, 365)">
+    <text x="0" y="0" fill="#c4f000" font-size="11" font-weight="600">none</text>
+    <text x="0" y="22" fill="#b4b4be" font-size="11" font-style="italic">guest's kernel hosts</text>
+    <text x="0" y="36" fill="#b4b4be" font-size="11" font-style="italic">algif_aead, not host's</text>
+  </g>
+
+  <g transform="translate(550, 365)">
+    <text x="0" y="0" fill="#c4f000" font-size="11" font-weight="600">none</text>
+    <text x="0" y="22" fill="#b4b4be" font-size="11" font-style="italic">Sentry does not proxy</text>
+    <text x="0" y="36" fill="#b4b4be" font-size="11" font-style="italic">AF_ALG to host kernel</text>
+  </g>
+
+  <g transform="translate(755, 365)">
+    <text x="0" y="0" fill="#c4f000" font-size="11" font-weight="600">none</text>
+    <text x="0" y="22" fill="#b4b4be" font-size="11" font-style="italic">same protection model</text>
+    <text x="0" y="36" fill="#b4b4be" font-size="11" font-style="italic">as Firecracker</text>
+  </g>
+
+  <!-- Footnote -->
+  <text x="40" y="468" fill="#ff6b5e" font-size="10" font-weight="700">*</text>
+  <text x="50" y="468" fill="#b4b4be" font-size="10">Cloudflare deployed an eBPF LSM block on the AF_ALG family fleet-wide within hours, then patched kernels in 5 days. No public advisory named Sandboxes specifically.</text>
+
+  <text x="40" y="494" fill="#a3a3ad" font-size="10" font-style="italic">CVE-2026-31431 — 732-byte exploit, 4-byte controlled write into kernel page cache via AF_ALG / algif_aead. Disclosed 29 April 2026.</text>
+</svg>

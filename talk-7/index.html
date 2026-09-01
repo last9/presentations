@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Building a Multi-Tenant Agent Platform in Go</title>
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reset.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reveal.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/inter/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/jetbrains-mono/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/shantell-sans/index.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/plugin/highlight/monokai.css">
+  <link rel="stylesheet" href="../shared/theme.css">
+</head>
+<body>
+  <div class="reveal">
+    <img class="brand-mark" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="deck-foot"><span><b>Last9</b> &nbsp;·&nbsp; multi-tenant agent platform in Go</span></div>
+    <div class="slides">
+
+      <section class="title" data-background-color="#0e0f13">
+        <div class="kicker">Architecture &amp; Go engineering</div>
+        <h1>Building a multi-tenant<br>agent platform in <span style="color:var(--lime)">Go</span></h1>
+        <p class="sub">Patterns that make structural isolation a property of the codebase.</p>
+        <p class="byline">Shekhar Patil · Last9</p>
+      </section>
+
+      <!-- MANDATORY · what is an agent -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">Required baseline</div>
+        <h2>What <em>is</em> an agent?</h2>
+        <p class="dim" style="font-size:.74em;margin-bottom:.4em">An <strong style="color:var(--ink)">LLM in a loop</strong> that takes <strong style="color:var(--ink)">actions</strong>, keeps <strong style="color:var(--ink)">state</strong>, and acts in the world, not a chatbot, not RPA.</p>
+        <svg class="diagram" viewBox="0 0 1120 312" fill="none" style="max-height:218px;margin:0 auto">
+          <defs>
+            <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6b6b78"/></marker>
+            <marker id="ad" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ff6b5e"/></marker>
+            <marker id="as" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#c4f000"/></marker>
+          </defs>
+          <rect x="28" y="104" width="216" height="92" rx="14" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <text x="136" y="146" fill="#fafafa" font-size="22" font-weight="600" text-anchor="middle">user · event</text>
+          <text x="136" y="174" fill="#a3a3ad" font-size="14" text-anchor="middle">slack · cron · webhook</text>
+          <circle cx="560" cy="150" r="82" fill="#14160a" stroke="#c4f000" stroke-width="2.5"/>
+          <text x="560" y="145" fill="#c4f000" font-size="34" font-weight="700" text-anchor="middle">LLM</text>
+          <text x="560" y="173" fill="#a3a3ad" font-size="15" text-anchor="middle">reason → decide</text>
+          <rect x="900" y="100" width="200" height="100" rx="14" fill="#2a140f" stroke="#ff6b5e" stroke-width="2.5"/>
+          <text x="1000" y="138" fill="#ff6b5e" font-size="20" font-weight="700" text-anchor="middle">TOOL CALL</text>
+          <text x="1000" y="164" fill="#fafafa" font-size="14" text-anchor="middle">shell · cloud API</text>
+          <text x="1000" y="186" fill="#fafafa" font-size="14" text-anchor="middle">db · message · $$</text>
+          <ellipse cx="560" cy="298" rx="66" ry="14" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <path d="M494 298 v-50 a66 14 0 0 0 132 0 v50" fill="#1c1c22" stroke="#33333c" stroke-width="2"/>
+          <ellipse cx="560" cy="248" rx="66" ry="14" fill="#16161b" stroke="#33333c" stroke-width="2"/>
+          <text x="560" y="278" fill="#a3a3ad" font-size="14" text-anchor="middle">memory · state</text>
+          <path d="M560 246 V 240" stroke="#6b6b78" stroke-width="2" marker-end="url(#a)"/>
+          <path d="M248 150 H 472" stroke="#6b6b78" stroke-width="2.5" marker-end="url(#a)"/>
+          <text x="360" y="136" fill="#a3a3ad" font-size="14" text-anchor="middle">prompt + state</text>
+          <path d="M648 134 H 718" stroke="#ff6b5e" stroke-width="3" marker-end="url(#ad)"/>
+          <text x="683" y="120" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle">proposes</text>
+          <rect x="722" y="115" width="98" height="38" rx="10" fill="#14160a" stroke="#c4f000" stroke-width="2"/>
+          <text x="771" y="139" fill="#c4f000" font-size="13" font-weight="600" text-anchor="middle">approve?</text>
+          <path d="M824 134 H 896" stroke="#ff6b5e" stroke-width="3" marker-end="url(#ad)"/>
+          <text x="860" y="120" fill="#ff6b5e" font-size="12" font-weight="600" text-anchor="middle">execute</text>
+          <path d="M900 178 C 800 234, 662 222, 642 170" stroke="#c4f000" stroke-width="2.5" marker-end="url(#as)"/>
+          <text x="778" y="240" fill="#c4f000" font-size="14" text-anchor="middle">result</text>
+          <path d="M514 66 C 534 32, 586 32, 606 66" stroke="#6b6b78" stroke-width="2" stroke-dasharray="4 5" marker-end="url(#a)"/>
+          <text x="560" y="26" fill="#6b6b78" font-size="13" text-anchor="middle">repeat</text>
+        </svg>
+        <div class="row" style="gap:.7em;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.45em .8em;margin-top:.3em">
+          <span class="chip">the platform's job</span>
+          <span style="margin:0;font-size:.95em">Run hundreds of these for different tenants on one binary, with no leaks between them.</span>
+        </div>
+      </section>
+
+      <!-- THESIS -->
+      <section class="divider" data-background-color="#0b0c10">
+        <div class="actno">THE ONE IDEA</div>
+        <p class="thesis">Isolation is a <span class="struct">codebase property</span>, not a <span class="conv">runtime hope</span>.</p>
+        <p class="lead dim" style="max-width:30ch;margin-top:.5em">A handful of boring Go rules make cross-tenant
+          access something you can't <em>express</em>, not something you remember to prevent.</p>
+      </section>
+
+      <!-- origin -->
+      <section class="attack" data-background-color="#0e0f13">
+        <div class="kicker">Act 1 · the Python original</div>
+        <h2>A skill was just a module we imported.</h2>
+        <pre><code class="language-python" data-trim data-noescape>
+def handle(name, input, ctx):
+    # in-process: full filesystem, env, network, shared memory.
+    # great for one trusted team. fatal for many tenants.
+        </code></pre>
+        <p>Shared process, shared globals, shared blast radius. Going multi-tenant broke every assumption,
+          and forced the Go rewrite.</p>
+      </section>
+
+      <!-- four rules -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker">The rules that made isolation tractable</div>
+        <h2>Four boring rules.</h2>
+        <div class="cols">
+          <div class="stack">
+            <p>① <strong>Interfaces first</strong>, constructor injection</p>
+            <p>② <strong>No global state</strong> (only sentinel errors, metric descriptors)</p>
+          </div>
+          <div class="stack">
+            <p>③ <strong>One concept per package</strong></p>
+            <p>④ <strong>Process-spawn model</strong>, each agent its own OS process</p>
+          </div>
+        </div>
+        <p class="lead" style="margin-top:.4em">No global state is a <strong>security</strong> property: there's no
+          shared singleton for one tenant's data to leak through.</p>
+      </section>
+
+      <!-- construction-time binding -->
+      <section class="defense" data-background-color="#0e0f13">
+        <div class="kicker">The pattern, made concrete</div>
+        <h3>Bind the tenant at construction.</h3>
+        <pre><code class="language-go" data-trim data-noescape>
+// the store is the canonical example: workspace + agent baked in,
+// so no method can reach another tenant's data.
+func NewPGStore(pool, masterKey, workspaceID, agentID string) (Store, error)
+
+// engine pool: per-(workspace, agent) instance, evicted when idle
+pool sync.Map   // 30m TTL, 5m reaper
+        </code></pre>
+        <p>Concurrency without frameworks: <span class="id">x/sync/semaphore</span> + plain goroutines,
+          a per-channel mutex for ordering. No pool libraries.</p>
+      </section>
+
+      <!-- testing -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">How we trust it</div>
+        <h2>Real implementations, not mocks.</h2>
+        <div class="cols">
+          <div class="card safe"><h3>Table-driven + testcontainers</h3>
+            <p>Tests run against a real Postgres in a container. No mocks where a real implementation works,
+              so the isolation we test is the isolation we ship.</p></div>
+          <div class="card"><h3>Sentinel errors per package</h3>
+            <p>Wrap with <span class="id">fmt.Errorf("...: %w", err)</span>; one concept owns its errors.
+              Failures are legible, not stringly-typed.</p></div>
+        </div>
+      </section>
+
+      <!-- close -->
+      <section class="title" data-background-color="#0b0c10">
+        <p class="thesis">Architecture <span class="struct">as security</span>.</p>
+        <p class="lead" style="margin-top:.4em">The rules look like style. They're load-bearing: they make a
+          whole class of cross-tenant bug <strong>unwriteable</strong>.</p>
+        <p class="byline">shekhar@last9.io</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="../node_modules/reveal.js/dist/reveal.js"></script>
+  <script src="../node_modules/reveal.js/plugin/highlight/highlight.js"></script>
+  <script src="../node_modules/reveal.js/plugin/notes/notes.js"></script>
+  <script>
+    Reveal.initialize({ hash:true, slideNumber:'c/t', transition:'fade', transitionSpeed:'fast',
+      width:1280, height:720, margin:0.04, center:false, controlsTutorial:false,
+      plugins:[ RevealHighlight, RevealNotes ] });
+  </script>
+</body>
+</html>

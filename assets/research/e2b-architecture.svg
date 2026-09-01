@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 644" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <rect width="960" height="644" fill="#0f0f14" rx="8"/>
+
+  <!-- Title -->
+  <text x="40" y="30" fill="#eaeaf0" font-size="16" font-weight="700">Inside an E2B sandbox</text>
+  <text x="40" y="50" fill="#b4b4be" font-size="12">Three host-side mechanisms, an isolation boundary, and what the guest sees</text>
+
+  <!-- HOST band -->
+  <rect x="20" y="68" width="920" height="200" fill="#14223a" rx="6"/>
+  <text x="36" y="88" fill="#eaeaf0" font-size="11" font-weight="700" letter-spacing="1">HOST</text>
+  <text x="78" y="88" fill="#b4b4be" font-size="10">Nomad raw_exec orchestrator — runs on the host namespace, not isolated</text>
+
+  <!-- Column headers -->
+  <text x="160" y="110" fill="#b4b4be" font-size="9" font-weight="700" text-anchor="middle" letter-spacing="0.8">BOOT PATH</text>
+  <text x="480" y="110" fill="#b4b4be" font-size="9" font-weight="700" text-anchor="middle" letter-spacing="0.8">CREDENTIAL HANDOFF</text>
+  <text x="800" y="110" fill="#b4b4be" font-size="9" font-weight="700" text-anchor="middle" letter-spacing="0.8">I/O PROXYING</text>
+
+  <!-- COL 1 HOST: Snapshot + UFFD/Prefetcher -->
+  <g transform="translate(40, 120)">
+    <rect width="240" height="138" fill="#16161b" stroke="#b8c4d4" stroke-width="1" rx="4"/>
+    <text x="120" y="22" fill="#eaeaf0" font-size="11" font-weight="700" text-anchor="middle">Content-addressed snapshot</text>
+    <text x="14" y="42" fill="#b4b4be" font-size="10">Snapfile — CPU + device state</text>
+    <text x="14" y="56" fill="#b4b4be" font-size="10">MemfileDiff — RAM, shared blocks</text>
+    <text x="14" y="70" fill="#b4b4be" font-size="10">RootfsDiff — fs, shared blocks</text>
+    <line x1="12" y1="82" x2="228" y2="82" stroke="#14223a"/>
+    <text x="120" y="100" fill="#eaeaf0" font-size="11" font-weight="700" text-anchor="middle">UFFD + Prefetcher</text>
+    <text x="14" y="118" fill="#b4b4be" font-size="10">Page faults served from host;</text>
+    <text x="14" y="130" fill="#b4b4be" font-size="10">prefetcher walks offline-trained set</text>
+  </g>
+
+  <!-- COL 2 HOST: MMDS + HTTP POST -->
+  <g transform="translate(360, 120)">
+    <rect width="240" height="138" fill="#16161b" stroke="#b8c4d4" stroke-width="1" rx="4"/>
+    <text x="120" y="22" fill="#eaeaf0" font-size="11" font-weight="700" text-anchor="middle">MMDS publisher</text>
+    <text x="14" y="42" fill="#b4b4be" font-size="10">Firecracker instance metadata</text>
+    <text x="14" y="56" fill="#b4b4be" font-size="10">{ instanceID, envID,</text>
+    <text x="26" y="68" fill="#b4b4be" font-size="10">accessTokenHash }</text>
+    <line x1="12" y1="82" x2="228" y2="82" stroke="#14223a"/>
+    <text x="120" y="100" fill="#eaeaf0" font-size="11" font-weight="700" text-anchor="middle">Orchestrator HTTP POST</text>
+    <text x="14" y="118" fill="#b4b4be" font-size="10">Real token + env vars +</text>
+    <text x="14" y="130" fill="#b4b4be" font-size="10">cwd + CA bundle, sent to envd</text>
+  </g>
+
+  <!-- COL 3 HOST: NFS + Egress proxies -->
+  <g transform="translate(680, 120)">
+    <rect width="240" height="138" fill="#16161b" stroke="#b8c4d4" stroke-width="1" rx="4"/>
+    <text x="120" y="22" fill="#eaeaf0" font-size="11" font-weight="700" text-anchor="middle">nfsproxy</text>
+    <text x="14" y="42" fill="#b4b4be" font-size="10">Terminates NFS from guest;</text>
+    <text x="14" y="56" fill="#b4b4be" font-size="10">enforces which paths are mounted</text>
+    <line x1="12" y1="68" x2="228" y2="68" stroke="#14223a"/>
+    <text x="120" y="86" fill="#eaeaf0" font-size="11" font-weight="700" text-anchor="middle">Egress proxy</text>
+    <text x="14" y="104" fill="#b4b4be" font-size="10">Host CA injected into guest /init;</text>
+    <text x="14" y="118" fill="#b4b4be" font-size="10">MITMs outbound TLS to allowed</text>
+    <text x="14" y="130" fill="#b4b4be" font-size="10">domains</text>
+  </g>
+
+  <!-- Arrows from HOST boxes down to boundary, with single-line labels positioned well above boundary -->
+  <g>
+    <line x1="160" y1="272" x2="160" y2="338" stroke="#cfcfd6" stroke-width="1.5"/>
+    <polygon points="155,336 160,346 165,336" fill="#cfcfd6"/>
+    <text x="170" y="288" fill="#eaeaf0" font-size="10">snapshot bytes;</text>
+    <text x="170" y="302" fill="#eaeaf0" font-size="10">UFFD page faults</text>
+  </g>
+  <g>
+    <line x1="480" y1="272" x2="480" y2="338" stroke="#cfcfd6" stroke-width="1.5"/>
+    <polygon points="475,336 480,346 485,336" fill="#cfcfd6"/>
+    <text x="490" y="288" fill="#eaeaf0" font-size="10">token hash (MMDS)</text>
+    <text x="490" y="302" fill="#eaeaf0" font-size="10">+ real token (POST)</text>
+  </g>
+  <g>
+    <line x1="800" y1="272" x2="800" y2="338" stroke="#cfcfd6" stroke-width="1.5"/>
+    <polygon points="795,336 800,346 805,336" fill="#cfcfd6"/>
+    <polygon points="795,276 800,266 805,276" fill="#cfcfd6"/>
+    <text x="810" y="288" fill="#eaeaf0" font-size="10">NFS, TLS egress</text>
+    <text x="810" y="302" fill="#eaeaf0" font-size="10">(both directions)</text>
+  </g>
+
+  <!-- ISOLATION BOUNDARY (below labels, comfortably above arrowheads) -->
+  <line x1="20" y1="324" x2="940" y2="324" stroke="#ff6b5e" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <rect x="395" y="317" width="170" height="14" fill="#0f0f14"/>
+  <text x="480" y="328" fill="#ff6b5e" font-size="9.5" font-weight="700" letter-spacing="1.2" text-anchor="middle">ISOLATION BOUNDARY</text>
+
+  <!-- GUEST band -->
+  <rect x="20" y="356" width="920" height="196" fill="#221c0c" rx="6"/>
+  <text x="36" y="376" fill="#eaeaf0" font-size="11" font-weight="700" letter-spacing="1">GUEST</text>
+  <text x="78" y="376" fill="#b4b4be" font-size="10">Firecracker microVM — own kernel; no shared device tree; AEAD crypto syscalls compiled out</text>
+
+  <!-- COL 1 GUEST: Custom kernel -->
+  <g transform="translate(40, 390)">
+    <rect width="240" height="146" fill="#16161b" stroke="#c4b896" stroke-width="1" rx="4"/>
+    <text x="120" y="22" fill="#eaeaf0" font-size="11" font-weight="700" text-anchor="middle">Custom-built guest kernel</text>
+    <text x="14" y="42" fill="#eaeaf0" font-size="10" font-weight="600">pci = off</text>
+    <text x="14" y="56" fill="#b4b4be" font-size="10">cannot enumerate PCI; no GPU path</text>
+    <text x="14" y="78" fill="#eaeaf0" font-size="10" font-weight="600">CONFIG_CRYPTO_USER disabled</text>
+    <text x="14" y="92" fill="#eaeaf0" font-size="10" font-weight="600">CRYPTO_USER_API_AEAD disabled</text>
+    <text x="14" y="106" fill="#b4b4be" font-size="10">AF_ALG family unreachable —</text>
+    <text x="14" y="120" fill="#b4b4be" font-size="10">Copy Fail's path closed before</text>
+    <text x="14" y="134" fill="#b4b4be" font-size="10">the exploit existed</text>
+  </g>
+
+  <!-- COL 2 GUEST: envd -->
+  <g transform="translate(360, 390)">
+    <rect width="240" height="146" fill="#16161b" stroke="#c4b896" stroke-width="1" rx="4"/>
+    <text x="120" y="22" fill="#eaeaf0" font-size="11" font-weight="700" text-anchor="middle">envd daemon (in memory)</text>
+    <text x="14" y="42" fill="#b4b4be" font-size="10">Receives orchestrator's POST;</text>
+    <text x="14" y="56" fill="#b4b4be" font-size="10">hashes the supplied token, then:</text>
+    <text x="14" y="78" fill="#eaeaf0" font-size="10" font-weight="600">verify hash == MMDS publish</text>
+    <text x="14" y="98" fill="#b4b4be" font-size="10">On match: token, env, cwd, CA</text>
+    <text x="14" y="112" fill="#b4b4be" font-size="10">bundle held in envd memory only</text>
+    <line x1="12" y1="122" x2="228" y2="122" stroke="#221c0c"/>
+    <text x="14" y="138" fill="#ff6b5e" font-size="10" font-style="italic">Not on disk. Not in the snapshot.</text>
+  </g>
+
+  <!-- COL 3 GUEST: Agent code -->
+  <g transform="translate(680, 390)">
+    <rect width="240" height="146" fill="#16161b" stroke="#c4b896" stroke-width="1" rx="4"/>
+    <text x="120" y="22" fill="#eaeaf0" font-size="11" font-weight="700" text-anchor="middle">Agent's code (Python, tools)</text>
+    <text x="14" y="42" fill="#b4b4be" font-size="10">Sees mounts as ordinary NFS;</text>
+    <text x="14" y="56" fill="#b4b4be" font-size="10">every read/write hits nfsproxy</text>
+    <text x="14" y="78" fill="#b4b4be" font-size="10">Sees outbound TLS as normal;</text>
+    <text x="14" y="92" fill="#b4b4be" font-size="10">trusts host CA from /init</text>
+    <line x1="12" y1="104" x2="228" y2="104" stroke="#221c0c"/>
+    <text x="14" y="120" fill="#b4b4be" font-size="10" font-style="italic">All I/O is mediated; agent cannot</text>
+    <text x="14" y="134" fill="#b4b4be" font-size="10" font-style="italic">reach outside the proxy boundary</text>
+  </g>
+
+  <!-- Bottom: spawn timeline (wrapped to 2 lines so the last clause fits) -->
+  <text x="40" y="572" fill="#eaeaf0" font-size="11" font-weight="700">Spawn timing</text>
+  <text x="40" y="588" fill="#b4b4be" font-size="11">t = 0 (resume) → Snapfile loads synchronously → guest starts → UFFD streams pages while prefetcher races ahead</text>
+  <text x="40" y="602" fill="#b4b4be" font-size="11">→ t ≈ 150 ms userspace ready → orchestrator POSTs token → envd validates → agent code runs.</text>
+
+  <!-- Footnote (kept inside viewBox) -->
+  <text x="40" y="618" fill="#a3a3ad" font-size="9.5" font-style="italic">Architecture verified against e2b-dev/infra @ f2c360d; permalinks in the post's footnotes [1–8].</text>
+</svg>

@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <rect width="960" height="520" fill="#0f0f14" rx="8"/>
+
+  <!-- Title -->
+  <text x="40" y="32" fill="#eaeaf0" font-size="16" font-weight="700">The Agent Sandbox Map</text>
+  <text x="40" y="52" fill="#b4b4be" font-size="12">Platforms plotted by duration, resource, and session model</text>
+
+  <!-- Axis labels -->
+  <text x="480" y="78" fill="#eaeaf0" font-size="12" font-weight="700" text-anchor="middle">Duration</text>
+  <text x="225" y="96" fill="#b4b4be" font-size="11" text-anchor="middle">ephemeral</text>
+  <text x="735" y="96" fill="#b4b4be" font-size="11" text-anchor="middle">persistent</text>
+
+  <text transform="translate(60, 270) rotate(-90)" fill="#eaeaf0" font-size="12" font-weight="700" text-anchor="middle">Resource</text>
+  <text transform="translate(88, 180) rotate(-90)" fill="#b4b4be" font-size="11" text-anchor="middle">GPU</text>
+  <text transform="translate(88, 360) rotate(-90)" fill="#b4b4be" font-size="11" text-anchor="middle">CPU</text>
+
+  <!-- Plot frame -->
+  <rect x="130" y="110" width="700" height="340" fill="#16161b" stroke="#33333c" stroke-width="1.2" rx="4"/>
+
+  <!-- Quadrant dividers -->
+  <line x1="480" y1="110" x2="480" y2="450" stroke="#33333c" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="130" y1="280" x2="830" y2="280" stroke="#33333c" stroke-width="1" stroke-dasharray="3,3"/>
+
+  <!-- Quadrant labels (faint, corner-anchored) -->
+  <text x="144" y="128" fill="#44444f" font-size="10" font-weight="600">EPHEMERAL · GPU</text>
+  <text x="816" y="128" fill="#44444f" font-size="10" font-weight="600" text-anchor="end">PERSISTENT · GPU</text>
+  <text x="144" y="442" fill="#44444f" font-size="10" font-weight="600">EPHEMERAL · CPU</text>
+  <text x="816" y="442" fill="#44444f" font-size="10" font-weight="600" text-anchor="end">PERSISTENT · CPU</text>
+
+  <!-- Markers and labels (labels positioned to not cross quadrant dividers) -->
+
+  <!-- E2B: ephemeral + CPU + stateless -->
+  <g>
+    <circle cx="240" cy="360" r="13" fill="#7aa2f7" fill-opacity="0.9" stroke="#9ab8e6" stroke-width="1.5"/>
+    <text x="240" y="392" fill="#eaeaf0" font-size="13" font-weight="700" text-anchor="middle">E2B</text>
+  </g>
+
+  <!-- Modal: ephemeral + GPU + stateless -->
+  <g>
+    <circle cx="240" cy="200" r="13" fill="#7aa2f7" fill-opacity="0.9" stroke="#9ab8e6" stroke-width="1.5"/>
+    <text x="240" y="232" fill="#eaeaf0" font-size="13" font-weight="700" text-anchor="middle">Modal</text>
+  </g>
+
+  <!-- AgentCore: ephemeral + GPU + stateful (session) -->
+  <g>
+    <rect x="361" y="189" width="22" height="22" fill="#c4f000" fill-opacity="0.9" stroke="#c4f000" stroke-width="1.5" rx="3"/>
+    <text x="372" y="232" fill="#eaeaf0" font-size="13" font-weight="700" text-anchor="middle">AgentCore</text>
+  </g>
+
+  <!-- Fly Sprites: persistent + CPU + stateful -->
+  <g>
+    <rect x="629" y="349" width="22" height="22" fill="#c4f000" fill-opacity="0.9" stroke="#c4f000" stroke-width="1.5" rx="3"/>
+    <text x="640" y="392" fill="#eaeaf0" font-size="13" font-weight="700" text-anchor="middle">Fly Sprites</text>
+  </g>
+
+  <!-- Daytona: persistent + CPU + stateful (container) -->
+  <g>
+    <rect x="729" y="389" width="22" height="22" fill="#ffb357" fill-opacity="0.75" stroke="#8b4a1a" stroke-width="1.5" rx="3"/>
+    <text x="740" y="432" fill="#eaeaf0" font-size="13" font-weight="700" text-anchor="middle">Daytona</text>
+  </g>
+
+  <!-- GKE Agent Sandbox: configurable (diamond), at plot center since it spans the cube -->
+  <g transform="translate(480, 280)">
+    <polygon points="0,-14 14,0 0,14 -14,0" fill="#b58aff" fill-opacity="0.85" stroke="#c0a3ff" stroke-width="1.5"/>
+    <text x="0" y="34" fill="#eaeaf0" font-size="12" font-weight="700" text-anchor="middle">GKE Agent Sandbox</text>
+  </g>
+
+  <!-- Empty cell callout (persistent + GPU) -->
+  <g>
+    <rect x="610" y="148" width="180" height="84" fill="#16161b" stroke="#bbb" stroke-width="1" stroke-dasharray="4,3" rx="4"/>
+    <text x="700" y="166" fill="#a3a3ad" font-size="10" font-weight="700" text-anchor="middle">PACKAGING GAP</text>
+    <text x="700" y="183" fill="#a3a3ad" font-size="9" text-anchor="middle">substrate exists</text>
+    <text x="700" y="195" fill="#a3a3ad" font-size="9" text-anchor="middle">(Thunder, Lightning,</text>
+    <text x="700" y="207" fill="#a3a3ad" font-size="9" text-anchor="middle">RunPod, Lambda)</text>
+    <text x="700" y="223" fill="#a3a3ad" font-size="9" text-anchor="middle" font-style="italic">no agent-first product</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(130, 478)">
+    <text x="0" y="0" fill="#eaeaf0" font-size="11" font-weight="700">Session model:</text>
+
+    <circle cx="110" cy="-4" r="7" fill="#7aa2f7" fill-opacity="0.9" stroke="#9ab8e6" stroke-width="1"/>
+    <text x="124" y="0" fill="#cfcfd6" font-size="11">stateless</text>
+
+    <rect x="200" y="-11" width="14" height="14" fill="#c4f000" fill-opacity="0.9" stroke="#c4f000" stroke-width="1" rx="2"/>
+    <text x="220" y="0" fill="#cfcfd6" font-size="11">stateful (microVM)</text>
+
+    <rect x="340" y="-11" width="14" height="14" fill="#ffb357" fill-opacity="0.75" stroke="#8b4a1a" stroke-width="1" rx="2"/>
+    <text x="360" y="0" fill="#cfcfd6" font-size="11">stateful (container)</text>
+
+    <polygon points="490,-4 500,-14 510,-4 500,6" fill="#b58aff" fill-opacity="0.85" stroke="#c0a3ff" stroke-width="1"/>
+    <text x="518" y="0" fill="#cfcfd6" font-size="11">self-hosted primitive</text>
+
+    <text x="0" y="22" fill="#a3a3ad" font-size="10" font-style="italic">Position encodes duration × resource. Shape and color encode session model.</text>
+  </g>
+</svg>

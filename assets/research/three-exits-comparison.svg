@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 420" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">
+  <rect width="1000" height="420" fill="#0f0f14" rx="8"/>
+
+  <!-- Title -->
+  <text x="40" y="32" fill="#eaeaf0" font-size="16" font-weight="700">What Each Option Trades</text>
+  <text x="40" y="52" fill="#b4b4be" font-size="12">One baseline, three isolation architectures, one deployment bridge</text>
+
+  <!-- Column headers -->
+  <g>
+    <rect x="40" y="72" width="200" height="36" fill="#14160a" rx="4"/>
+    <text x="52" y="95" fill="#16161b" font-size="12" font-weight="700">Dimension</text>
+
+    <rect x="244" y="72" width="144" height="36" fill="#2a140f" stroke="#ff6b5e" stroke-width="1.2" rx="4"/>
+    <text x="316" y="95" fill="#ff8a80" font-size="12" font-weight="700" text-anchor="middle">runc</text>
+
+    <rect x="392" y="72" width="144" height="36" fill="#14160a" stroke="#c4f000" stroke-width="1.2" rx="4"/>
+    <text x="464" y="95" fill="#c4f000" font-size="12" font-weight="700" text-anchor="middle">Firecracker</text>
+
+    <rect x="540" y="72" width="144" height="36" fill="#20201a" stroke="#ffb357" stroke-width="1.2" rx="4"/>
+    <text x="612" y="95" fill="#8b5a1a" font-size="12" font-weight="700" text-anchor="middle">gVisor</text>
+
+    <rect x="688" y="72" width="144" height="36" fill="#14223a" stroke="#7aa2f7" stroke-width="1.2" rx="4"/>
+    <text x="760" y="95" fill="#9ab8e6" font-size="12" font-weight="700" text-anchor="middle">Cloud HV</text>
+
+    <rect x="836" y="72" width="124" height="36" fill="#1e1630" stroke="#b58aff" stroke-width="1.2" rx="4"/>
+    <text x="898" y="95" fill="#c0a3ff" font-size="12" font-weight="700" text-anchor="middle">Kata (bridge)</text>
+  </g>
+
+  <!-- Row: Kernel model -->
+  <g transform="translate(0,112)">
+    <rect x="40" y="0" width="200" height="32" fill="#16161b"/>
+    <text x="52" y="21" fill="#fafafa" font-size="11" font-weight="600">Kernel model</text>
+    <text x="316" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Shared host</text>
+    <text x="464" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Own guest, KVM</text>
+    <text x="612" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Userspace kernel</text>
+    <text x="760" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Own guest, KVM</text>
+    <text x="898" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Pod → microVM</text>
+  </g>
+
+  <!-- Row: Syscall surface -->
+  <g transform="translate(0,144)">
+    <rect x="40" y="0" width="920" height="32" fill="#16161b"/>
+    <text x="52" y="21" fill="#fafafa" font-size="11" font-weight="600">Guest→host surface</text>
+    <text x="316" y="21" fill="#ff6b5e" font-size="11" font-weight="600" text-anchor="middle">~457 syscalls</text>
+    <text x="464" y="21" fill="#c4f000" font-size="11" font-weight="600" text-anchor="middle">~25 hypercalls</text>
+    <text x="612" y="21" fill="#ffb357" font-size="11" font-weight="600" text-anchor="middle">274/350 (Go)</text>
+    <text x="760" y="21" fill="#7aa2f7" font-size="11" font-weight="600" text-anchor="middle">~25 hypercalls</text>
+    <text x="898" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Backend's</text>
+  </g>
+
+  <!-- Row: Boot time -->
+  <g transform="translate(0,176)">
+    <rect x="40" y="0" width="920" height="32" fill="#16161b"/>
+    <text x="52" y="21" fill="#fafafa" font-size="11" font-weight="600">Boot time</text>
+    <text x="316" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">~50ms</text>
+    <text x="464" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">~125ms</text>
+    <text x="612" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Process-speed</text>
+    <text x="760" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">~200ms</text>
+    <text x="898" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Backend + shim</text>
+  </g>
+
+  <!-- Row: Snapshot / Restore -->
+  <g transform="translate(0,208)">
+    <rect x="40" y="0" width="920" height="32" fill="#16161b"/>
+    <text x="52" y="21" fill="#fafafa" font-size="11" font-weight="600">Snapshot / restore</text>
+    <text x="316" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">No</text>
+    <text x="464" y="21" fill="#c4f000" font-size="11" font-weight="600" text-anchor="middle">4ms (GA v1.14)</text>
+    <text x="612" y="21" fill="#ff6b5e" font-size="11" text-anchor="middle">No</text>
+    <text x="760" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Yes (less mature)</text>
+    <text x="898" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Backend's</text>
+  </g>
+
+  <!-- Row: GPU -->
+  <g transform="translate(0,240)">
+    <rect x="40" y="0" width="920" height="32" fill="#16161b"/>
+    <text x="52" y="21" fill="#fafafa" font-size="11" font-weight="600">GPU support</text>
+    <text x="316" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Host drivers</text>
+    <text x="464" y="21" fill="#ff6b5e" font-size="11" font-weight="600" text-anchor="middle">No (policy)</text>
+    <text x="612" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">nvproxy (new)</text>
+    <text x="760" y="21" fill="#c4f000" font-size="11" font-weight="600" text-anchor="middle">VFIO passthrough</text>
+    <text x="898" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Backend's</text>
+  </g>
+
+  <!-- Row: KVM required -->
+  <g transform="translate(0,272)">
+    <rect x="40" y="0" width="920" height="32" fill="#16161b"/>
+    <text x="52" y="21" fill="#fafafa" font-size="11" font-weight="600">KVM required</text>
+    <text x="316" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">No</text>
+    <text x="464" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Yes (nested OK)</text>
+    <text x="612" y="21" fill="#c4f000" font-size="11" font-weight="600" text-anchor="middle">No (systrap)</text>
+    <text x="760" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Yes</text>
+    <text x="898" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Backend's</text>
+  </g>
+
+  <!-- Row: Production scale -->
+  <g transform="translate(0,304)">
+    <rect x="40" y="0" width="920" height="32" fill="#16161b"/>
+    <text x="52" y="21" fill="#fafafa" font-size="11" font-weight="600">Production scale</text>
+    <text x="316" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Everywhere</text>
+    <text x="464" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">AWS Lambda</text>
+    <text x="612" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Cloud Run, GKE</text>
+    <text x="760" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Fly GPU, Northflank</text>
+    <text x="898" y="21" fill="#cfcfd6" font-size="11" text-anchor="middle">Northflank 2M+/mo</text>
+  </g>
+
+  <!-- Row: Best fit -->
+  <g transform="translate(0,336)">
+    <rect x="40" y="0" width="920" height="36" fill="#1c1c22"/>
+    <text x="52" y="23" fill="#eaeaf0" font-size="11" font-weight="700">Best fit</text>
+    <text x="316" y="23" fill="#cfcfd6" font-size="11" text-anchor="middle">Trusted workloads</text>
+    <text x="464" y="23" fill="#cfcfd6" font-size="11" text-anchor="middle">Ephemeral, dense</text>
+    <text x="612" y="23" fill="#cfcfd6" font-size="11" text-anchor="middle">No KVM / portable</text>
+    <text x="760" y="23" fill="#cfcfd6" font-size="11" text-anchor="middle">GPU / long-running</text>
+    <text x="898" y="23" fill="#cfcfd6" font-size="11" text-anchor="middle">K8s-native teams</text>
+  </g>
+
+  <!-- Caption -->
+  <text x="500" y="402" fill="#b4b4be" font-size="11" text-anchor="middle" font-style="italic">No option is universally better. Each is a different bet on which tradeoff matters most.</text>
+</svg>

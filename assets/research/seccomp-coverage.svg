@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 180" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="800" height="180" fill="#0f0f14" rx="8"/>
+
+  <!-- Title -->
+  <text x="40" y="35" fill="#eaeaf0" font-size="16" font-weight="700">Docker's Default Seccomp Profile</text>
+  <text x="40" y="55" fill="#b4b4be" font-size="12">457 callable syscalls on x86_64 (Linux 6.18)</text>
+
+  <!-- Bar background -->
+  <rect x="40" y="75" width="720" height="40" fill="#1c1c22" rx="4"/>
+
+  <!-- Blocked portion (49/457 = 10.7%) -->
+  <rect x="40" y="75" width="77" height="40" fill="#c4f000" rx="4"/>
+  <rect x="113" y="75" width="4" height="40" fill="#0f0f14"/>
+
+  <!-- Allowed portion -->
+  <rect x="117" y="75" width="643" height="40" fill="#ff6b5e" rx="4"/>
+
+  <!-- Labels on bar -->
+  <text x="58" y="100" fill="#fafafa" font-size="13" font-weight="600">49</text>
+  <text x="420" y="100" fill="#fafafa" font-size="13" font-weight="600">408 syscalls open</text>
+
+  <!-- Legend -->
+  <rect x="40" y="135" width="14" height="14" fill="#c4f000" rx="2"/>
+  <text x="60" y="147" fill="#fafafa" font-size="13">Blocked (mount, reboot, bpf, ptrace...)</text>
+
+  <rect x="400" y="135" width="14" height="14" fill="#ff6b5e" rx="2"/>
+  <text x="420" y="147" fill="#fafafa" font-size="13">Allowed (all file, network, process, memory ops)</text>
+
+  <!-- Callout -->
+  <text x="40" y="172" fill="#a3a3ad" font-size="11" font-style="italic">New kernel syscalls are auto-allowed until Docker updates the blocklist.</text>
+</svg>
