@@ -12,6 +12,7 @@ Conference talks by Shekhar Patil and Last9 about securely operating untrusted A
 6. [Approvals as a First-Class Control](talk-6/)
 7. [Building a Multi-Tenant Agent Platform in Go](talk-7/)
 8. [Why Containers Aren't Enough for Untrusted Agents](talk-8/)
+9. [Whose Cloud Is It Anyway?](whose-cloud-is-it-anyway-sep-2-2026/)
 
 The expanded conference version, including speaker notes, is in [`talk-live/`](talk-live/). A LinkedIn carousel and PDF export are in [`carousel/`](carousel/).
 
@@ -30,6 +31,7 @@ Open <http://localhost:8000>. In a talk, use the arrow keys to navigate, `F` for
 ## Structure
 
 - `talk-1/` … `talk-8/`: standalone Reveal.js decks
+- `whose-cloud-is-it-anyway-sep-2-2026/`: meetup deck on BYO* and the telemetry tax
 - `talk-live/`: expanded live deck and printable speaker notes
 - `carousel/`: social carousel source and exported assets
 - `docs/`: abstracts, outlines, and presenter scripts

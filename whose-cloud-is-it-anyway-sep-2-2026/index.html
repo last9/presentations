@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whose Cloud Is It Anyway?</title>
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reset.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reveal.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/inter/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/jetbrains-mono/index.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/shantell-sans/index.css">
+  <link rel="stylesheet" href="../node_modules/reveal.js/plugin/highlight/monokai.css">
+  <link rel="stylesheet" href="../shared/theme.css">
+  <style>
+    /* amber marks the problem act, lime the turn. talk-8 uses the same warning amber. */
+    :root{ --amber:#ffb357; --amber-tint:rgba(255,179,87,.11); }
+
+    /* ---- deck-local components: the acronym bit, the invoice, the swap ledger ---- */
+    .reveal .acronym{ font-family:var(--font-display); font-weight:800; font-size:3.9em;
+      line-height:.88; letter-spacing:-.038em; margin:0; }
+    .reveal .acronym .hot{ color:var(--lime); }
+    .reveal .acronym .rest{ color:var(--ink-faint); }
+    .reveal .cursor{ display:inline-block; width:.5em; height:.72em; background:var(--lime);
+      margin-left:.06em; animation:blink 1.05s steps(1,end) infinite; }
+    @keyframes blink{ 0%,50%{opacity:1} 50.01%,100%{opacity:0} }
+
+    .reveal .expand{ font-family:var(--font-display); font-weight:500; font-size:1.5em;
+      letter-spacing:-.012em; color:var(--ink-dim); margin:.3em 0 0; }
+    .reveal .expand strong{ color:var(--ink); font-weight:740; }
+
+    .reveal .lines{ margin:.6em 0 0; display:flex; flex-direction:column; gap:.42em; max-width:34ch; }
+    .reveal .lines.wide{ max-width:none; }
+    .reveal .line{ font-size:.86em; line-height:1.34; margin:0; }
+    .reveal .line.small{ font-size:.72em; color:var(--ink-dim); }
+    .reveal .line.punch{ font-family:var(--font-display); font-weight:740; font-size:.9em;
+      line-height:1.14; letter-spacing:-.02em; }
+    .reveal .line.punch .amber{ color:var(--amber); }
+    .reveal .line.punch .lime{ color:var(--lime); }
+
+    /* opener byline drops to the bottom rail, level with the footnotes on every other slide.
+       left:88px matches the .title padding so it lines up with the kicker above it. */
+    .reveal section.title .byline{ position:absolute; left:88px; bottom:calc(var(--foot) - 14px);
+      margin:0; }
+
+    /* footnote line, bottom-left of the stage */
+    .reveal .foot-note{ position:absolute; left:var(--pad-x); right:var(--pad-x); bottom:calc(var(--foot) - 14px);
+      font-family:var(--font-mono); font-size:.42em; color:var(--ink-dim); letter-spacing:.01em; margin:0; }
+
+    /* ---- BYOB: the struck-out list ---- */
+    .reveal .options{ list-style:none; margin:.5em 0 0; padding:0; display:flex; flex-direction:column; gap:.22em; }
+    .reveal .options li{ display:flex; align-items:baseline; gap:.9em; margin:0; line-height:1.15; }
+    .reveal .options li::marker{ content:none; }
+    .reveal .word{ position:relative; font-family:var(--font-display); font-weight:740;
+      font-size:1em; letter-spacing:-.02em; color:var(--ink-dim); }
+    .reveal .word::after{ content:""; position:absolute; left:-.06em; right:-.06em; top:52%;
+      height:.075em; background:var(--danger); border-radius:2px;
+      transform:scaleX(0); transform-origin:left center;
+      transition:transform .34s cubic-bezier(.65,0,.35,1) .16s; }
+    .reveal .fragment.struck.visible .word::after{ transform:scaleX(1); }
+    .reveal .why{ font-family:var(--font-mono); font-size:.48em; color:var(--ink-faint); letter-spacing:.02em; }
+    .reveal .answer .word{ color:var(--amber); font-size:1.28em; }
+    .reveal .answer .word::after{ display:none; }
+    .reveal .answer .why{ color:var(--ink-dim); }
+
+    /* ---- the A/B/C/D convergence ---- */
+    .reveal .converge{ display:grid; grid-template-columns:1.5em auto; justify-content:start;
+      gap:.1em 1.1em; margin:.5em 0 0; align-items:baseline; }
+    .reveal .converge dt{ font-family:var(--font-display); font-weight:800; font-size:.8em; color:var(--lime); }
+    .reveal .converge dd{ margin:0; font-size:.76em; color:var(--ink); }
+
+    /* ---- diagrams ---- */
+    .reveal svg.diagram .dg-box{ fill:var(--card); stroke:var(--border-2); stroke-width:2; }
+    .reveal svg.diagram .dg-bar{ fill:none; stroke:var(--border-2); stroke-width:2; }
+    .reveal svg.diagram .dg-ui{ fill:var(--lime-tint); stroke:var(--lime); stroke-width:2.5; }
+    .reveal svg.diagram .dg-ui.warn{ fill:var(--amber-tint); stroke:var(--amber); }
+    .reveal svg.diagram .dg-t{ fill:var(--ink); font-family:var(--font-display); font-weight:700; font-size:22px; }
+    .reveal svg.diagram .dg-k{ fill:var(--ink-dim); font-family:var(--font-mono); font-size:13px; letter-spacing:.18em; }
+    .reveal svg.diagram .dg-s{ fill:var(--ink-faint); font-family:var(--font-mono); font-size:15px; }
+    .reveal svg.diagram .dg-n{ fill:var(--danger); font-family:var(--font-mono); font-size:15px; }
+    .reveal svg.diagram .dg-big{ fill:var(--amber); font-family:var(--font-display); font-weight:800; font-size:42px; }
+    .reveal svg.diagram .dg-bus{ stroke:#6b6b78; stroke-width:2.5; fill:none; }
+    .reveal svg.diagram .dg-a{ stroke:#6b6b78; stroke-width:2.5; fill:none; marker-end:url(#ah); }
+    .reveal svg.diagram .dg-x{ stroke:#ff6b5e; stroke-width:2.5; fill:none; stroke-dasharray:5 4; marker-end:url(#ax); }
+    .reveal svg.diagram .mid{ text-anchor:middle; }
+
+    /* ---- the telemetry-tax invoice ---- */
+    .reveal .invoice{ margin:.35em 0 0; border-top:1px solid var(--border); }
+    .reveal .inv-head{ display:flex; justify-content:space-between; font-family:var(--font-mono);
+      font-size:.42em; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-faint); padding:.6em 0 .2em; }
+    .reveal .inv-row{ display:grid; grid-template-columns:5.2em 1fr auto; gap:1.2em;
+      align-items:baseline; padding:.28em 0; border-top:1px solid var(--border); }
+    .reveal .inv-k{ font-family:var(--font-display); font-weight:740; font-size:.68em; letter-spacing:-.01em; }
+    .reveal .inv-d{ font-family:var(--font-mono); font-size:.52em; color:var(--ink-dim); }
+    .reveal .inv-v{ font-family:var(--font-mono); font-size:.52em; color:var(--amber);
+      text-align:right; white-space:nowrap; }
+    .reveal .inv-tots{ border-top:2px solid var(--amber); margin-top:.2em; }
+    .reveal .inv-tots .inv-row{ border-top:none; padding:.14em 0; }
+    .reveal .inv-tots .inv-k{ font-family:var(--font-mono); font-size:.46em; font-weight:500;
+      color:var(--ink-dim); text-transform:uppercase; letter-spacing:.14em; }
+    .reveal .inv-tots .inv-v{ color:var(--ink-dim); }
+    .reveal .inv-tots .inv-row:last-child .inv-v{ color:var(--amber); }
+
+    /* ---- the re-priced ledger ---- */
+    .reveal .swap{ margin:.4em 0 0; }
+    .reveal .swap-row{ display:grid; grid-template-columns:4.6em 1fr 1.2em 1.15fr; gap:.9em;
+      align-items:baseline; padding:.34em 0; border-top:1px solid var(--border); }
+    .reveal .swap-k{ font-family:var(--font-display); font-weight:740; font-size:.72em; letter-spacing:-.01em; }
+    .reveal .swap-a{ font-family:var(--font-mono); font-size:.55em; color:var(--ink-faint); }
+    .reveal .swap-x{ font-family:var(--font-mono); font-size:.55em; color:var(--lime); text-align:center; }
+    .reveal .swap-b{ font-family:var(--font-mono); font-size:.55em; color:var(--ink); }
+    .reveal .swap-b em{ font-style:normal; color:var(--lime); }
+
+    /* ---- the cake (appendix) ---- */
+    .reveal .meme{ display:grid; grid-template-columns:360px 1fr; gap:1.8em; align-items:center; margin:.4em 0 0; }
+    .reveal .meme img{ width:100%; height:auto; display:block; border-radius:10px; border:1px solid var(--border); }
+    .reveal .meme-src{ font-family:var(--font-mono); font-size:.42em; color:var(--ink-dim); margin:.7em 0 0; }
+
+    .reveal .endcard{ font-family:var(--font-mono); font-size:.55em; color:var(--ink-dim);
+      letter-spacing:.03em; margin:1.1em 0 0; }
+    .reveal .endcard span{ color:var(--ink-faint); }
+
+    /* ---- the A B C D rail, bottom right of the persistent footer ---- */
+    .reveal .letters{ display:flex; gap:.85em; align-items:baseline; }
+    .reveal .letters b{ font-family:var(--font-display); font-weight:700; font-size:15px;
+      letter-spacing:.04em; color:var(--ink-faint); display:inline-block;
+      transition:color .35s ease, transform .35s ease; }
+    .reveal .letters b.lit{ color:var(--lime); transform:translateY(-2px); }
+    .reveal .letters b.done{ color:var(--ink-dim); }
+    /* the rail sits left of reveal's own nav buttons */
+    .reveal .deck-foot{ right:auto; max-width:none; width:calc(100% - 150px); }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <img class="brand-mark" src="../assets/png/last9-icon-secondary.png" alt="Last9">
+    <div class="deck-foot">
+      <span><b>Last9</b> &nbsp;·&nbsp; whose cloud is it anyway?</span>
+      <span class="letters" id="letters" aria-hidden="true"><b>A</b><b>B</b><b>C</b><b>D</b></span>
+    </div>
+    <div class="slides">
+
+      <!-- 1 · THE SETUP -->
+      <section class="title" data-background-color="#0b0c10">
+        <div class="kicker">Before we talk about clouds</div>
+        <h1 class="acronym">BYO<span class="cursor" aria-hidden="true"></span></h1>
+        <div class="lines" style="max-width:44ch">
+          <p class="line fragment">Every architecture decision of the last three years has been a fill-in-the-blank.</p>
+          <p class="line small fragment">Four letters. Roughly in alphabetical order.</p>
+          <p class="line punch fragment">It's about <span class="amber">control of code and data</span>.</p>
+        </div>
+        <p class="byline">Nishant &middot; Last9</p>
+      </section>
+
+      <!-- 2 · A -->
+      <section data-background-color="#0e0f13" data-letter="A">
+        <h1 class="acronym">BYO<span class="hot">A</span></h1>
+        <p class="expand">Bring Your Own <strong>Agents</strong></p>
+        <div class="lines" style="max-width:40ch">
+          <p class="line fragment">Last year you hired four engineers. This year you &ldquo;onboarded&rdquo;
+            four hundred agents.</p>
+          <p class="line fragment">They don't sleep. They don't take PTO. They retry. <em>Enthusiastically.</em></p>
+        </div>
+        <p class="foot-note">// the org chart didn't change. the fan-out did.</p>
+      </section>
+
+      <!-- 3 · B -->
+      <section data-background-color="#0e0f13" data-letter="B">
+        <h1 class="acronym">BYO<span class="hot">B</span></h1>
+        <p class="expand">Bring Your Own <strong>___</strong></p>
+        <ul class="options">
+          <li class="fragment struck"><span class="word">Booze</span><span class="why">// meetup budget said no</span></li>
+          <li class="fragment struck"><span class="word">Backend</span><span class="why">// you have nine</span></li>
+          <li class="fragment struck"><span class="word">Buckets</span><span class="why">// you have nine thousand</span></li>
+          <li class="fragment struck"><span class="word">Blast radius</span><span class="why">// that one came free</span></li>
+          <li class="answer fragment"><span class="word">Bill.</span><span class="why">// there it is</span></li>
+        </ul>
+        <div class="lines" style="margin-top:.5em">
+          <p class="line punch fragment">The agents don't drink.<br>They still leave the
+            <span class="amber">tab open</span>.</p>
+        </div>
+        <p class="foot-note">// your vendor calls it usage-based. your CFO calls it something else.</p>
+      </section>
+
+      <!-- 4 · C -->
+      <section data-background-color="#0e0f13" data-letter="C">
+        <h1 class="acronym">BYO<span class="hot">C</span></h1>
+        <p class="expand">Bring Your Own <strong>Cloud</strong></p>
+        <div class="lines" style="max-width:44ch">
+          <p class="line fragment">The letter you already know. It's been on every slide tonight.</p>
+        </div>
+        <p class="foot-note">// &ldquo;it runs in your account&rdquo; answers a compliance question, not a cost one.</p>
+      </section>
+
+      <!-- 5 · D -->
+      <section data-background-color="#0e0f13" data-letter="D">
+        <h1 class="acronym">BYO<span class="hot">D</span></h1>
+        <p class="expand">Bring Your Own <strong>Data</strong></p>
+        <div class="lines" style="max-width:46ch">
+          <p class="line small fragment">Not Device. Nobody has lost sleep over Device since 2014.</p>
+          <p class="line fragment">D is Data. Specifically, the loudest data you own:
+            <strong>telemetry</strong>.</p>
+          <p class="line fragment">Logs, metrics, traces. The only dataset you generate faster than you can
+            decide where it's allowed to live.</p>
+        </div>
+        <p class="foot-note">// no dog was harmed in the making of this acronym. several petabytes were.</p>
+      </section>
+
+      <!-- 6 · WHAT WE ACTUALLY SEE -->
+      <section data-background-color="#0e0f13">
+        <div class="kicker">What we see in our own customers</div>
+        <h2>It is growing faster than the data it describes.</h2>
+        <div class="row" style="gap:1.1em;margin-top:.2em">
+          <span class="huge" style="color:var(--amber)">3&times;</span>
+          <span class="dim" style="font-size:.78em;line-height:1.3">telemetry volume across our customers,<br>after they started shipping AI features</span>
+        </div>
+      </section>
+
+      <!-- 7 · TONIGHT'S TITLE, DECODED -->
+      <section class="divider" data-background-color="#0b0c10">
+        <div class="actno">TONIGHT'S TITLE, DECODED</div>
+        <h2 style="font-size:1.9em;line-height:1">Whose Cloud Is It Anyway?</h2>
+        <p class="line fragment dim" style="font-style:italic;font-size:.8em;margin-top:.3em">Where the acronyms
+          are made up and the bills absolutely matter.</p>
+        <dl class="converge">
+          <dt class="fragment">A</dt><dd class="fragment">generates it</dd>
+          <dt class="fragment">B</dt><dd class="fragment">pays for it</dd>
+          <dt class="fragment">C</dt><dd class="fragment">decides where it lives</dd>
+          <dt class="fragment">D</dt><dd class="fragment"><strong>is it</strong></dd>
+        </dl>
+        <p class="line punch fragment" style="font-size:1em;margin-top:.5em">All four collide in exactly one place:<br>
+          <span class="amber">your observability stack.</span></p>
+      </section>
+
+      <!-- 8 · THE HONEST ARCHITECTURE -->
+      <section class="attack" data-background-color="#0e0f13" data-rail="ABCD">
+        <div class="kicker">Typical setup today</div>
+        <svg class="diagram" viewBox="0 0 1000 400" style="max-height:390px" role="img"
+             aria-label="Services fan out through three shippers onto a shared bus into four separate telemetry stores, with one UI stitched across all of them">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6b6b78"/></marker>
+            <marker id="ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ff6b5e"/></marker>
+          </defs>
+          <rect class="dg-bar" x="60" y="4" width="880" height="42" rx="4"/>
+          <text class="dg-t mid" x="500" y="32">your services <tspan class="dg-s">· the ones you still know about</tspan></text>
+          <path class="dg-a" d="M185 46 V74"/><path class="dg-a" d="M500 46 V74"/><path class="dg-a" d="M815 46 V74"/>
+          <rect class="dg-box" x="60" y="78" width="250" height="58" rx="4"/>
+          <text class="dg-t mid" x="185" y="105">OTel Collector</text>
+          <text class="dg-s mid" x="185" y="126">the one you standardised on</text>
+          <rect class="dg-box" x="375" y="78" width="250" height="58" rx="4"/>
+          <text class="dg-t mid" x="500" y="105">Prometheus scrape</text>
+          <text class="dg-s mid" x="500" y="126">predates the collector</text>
+          <rect class="dg-box" x="690" y="78" width="250" height="58" rx="4"/>
+          <text class="dg-t mid" x="815" y="105">vendor agent</text>
+          <text class="dg-s mid" x="815" y="126">nobody removed it</text>
+          <!-- one shared bus: every shipper reaches every store. the tangle is the point, the routing shouldn't be. -->
+          <path class="dg-bus" d="M185 136 V176"/><path class="dg-bus" d="M500 136 V176"/><path class="dg-bus" d="M815 136 V176"/>
+          <path class="dg-bus" d="M158 176 H848"/>
+          <path class="dg-a" d="M158 176 V200"/><path class="dg-a" d="M390 176 V200"/>
+          <path class="dg-a" d="M622 176 V200"/><path class="dg-a" d="M848 176 V200"/>
+          <!-- the one line that isn't on the bus, because nobody put it there on purpose -->
+          <path class="dg-x" d="M745 136 V158 H430 V200"/>
+          <text class="dg-n" x="940" y="154" text-anchor="end">still billed</text>
+          <text class="dg-n" x="940" y="170" text-anchor="end">still shipping</text>
+          <rect class="dg-box" x="52" y="204" width="212" height="94" rx="4"/>
+          <text class="dg-k mid" x="158" y="229">LOGS</text><text class="dg-t mid" x="158" y="258">Loki → S3</text><text class="dg-s mid" x="158" y="281">14d, then a bucket</text>
+          <rect class="dg-box" x="284" y="204" width="212" height="94" rx="4"/>
+          <text class="dg-k mid" x="390" y="229">METRICS</text><text class="dg-t mid" x="390" y="258">Prom + Thanos</text><text class="dg-s mid" x="390" y="281">13 months</text>
+          <rect class="dg-box" x="516" y="204" width="212" height="94" rx="4"/>
+          <text class="dg-k mid" x="622" y="229">TRACES</text><text class="dg-t mid" x="622" y="258">Tempo</text><text class="dg-s mid" x="622" y="281">3d, sampled</text>
+          <rect class="dg-box" x="748" y="204" width="200" height="94" rx="4"/>
+          <text class="dg-k mid" x="848" y="229">? ? ?</text><text class="dg-t mid" x="848" y="258">ClickHouse</text><text class="dg-s mid" x="848" y="281">added last quarter</text>
+          <g class="fragment">
+            <path class="dg-a" d="M158 298 V320"/><path class="dg-a" d="M390 298 V320"/>
+            <path class="dg-a" d="M622 298 V320"/><path class="dg-a" d="M848 298 V320"/>
+            <rect class="dg-ui warn" x="52" y="324" width="896" height="56" rx="4"/>
+            <text class="dg-t mid" x="500" y="350" style="font-size:21px">one UI to bring it all together</text>
+            <text class="dg-s mid" x="500" y="372">4 datasources · 4 query languages · 4 auth configs · 1 dashboard nobody fully trusts</text>
+          </g>
+        </svg>
+        <p class="foot-note">// 14d vs 13mo vs 3d · three spellings of &ldquo;service&rdquo;</p>
+      </section>
+
+      <!-- 9 · FOUR TECHNICALLY CORRECT ANSWERS -->
+      <section class="attack" data-background-color="#0e0f13" data-rail="ABCD">
+        <h2>Now point an agent at it.</h2>
+        <svg class="diagram" viewBox="0 0 1000 250" style="max-height:250px" role="img"
+             aria-label="One agent queries four separate stores and gets four different answers to the same question">
+          <rect class="dg-ui warn" x="258" y="2" width="484" height="54" rx="4"/>
+          <text class="dg-t mid" x="500" y="28" style="font-size:20px">“which services are erroring right now?”</text>
+          <text class="dg-s mid" x="500" y="47">asked once, by one agent</text>
+          <path class="dg-bus" d="M500 56 V80"/><path class="dg-bus" d="M158 80 H848"/>
+          <path class="dg-a" d="M158 80 V100"/><path class="dg-a" d="M390 80 V100"/>
+          <path class="dg-a" d="M622 80 V100"/><path class="dg-a" d="M848 80 V100"/>
+          <rect class="dg-box" x="52" y="104" width="212" height="104" rx="4"/>
+          <text class="dg-k mid" x="158" y="128">LOGS</text><text class="dg-big mid" x="158" y="172">12</text><text class="dg-s mid" x="158" y="196">grep -c 'ERROR'</text>
+          <rect class="dg-box" x="284" y="104" width="212" height="104" rx="4"/>
+          <text class="dg-k mid" x="390" y="128">METRICS</text><text class="dg-big mid" x="390" y="172">31</text><text class="dg-s mid" x="390" y="196">rate(errors[5m]) &gt; 0</text>
+          <rect class="dg-box" x="516" y="104" width="212" height="104" rx="4"/>
+          <text class="dg-k mid" x="622" y="128">TRACES</text><text class="dg-big mid" x="622" y="172">8</text><text class="dg-s mid" x="622" y="196">of what we sampled</text>
+          <rect class="dg-box" x="748" y="104" width="200" height="104" rx="4"/>
+          <text class="dg-k mid" x="848" y="128">? ? ?</text><text class="dg-big mid" x="848" y="172" style="fill:#6b6b78">null</text><text class="dg-s mid" x="848" y="196">table dropped tuesday</text>
+          <g class="fragment"><text class="dg-n mid" x="500" y="240">every one of them is technically correct</text></g>
+        </svg>
+      </section>
+
+      <!-- 10 · THE TELEMETRY TAX -->
+      <section class="attack" data-background-color="#0e0f13" data-rail="ABCD">
+        <h2>You are already paying a tax.</h2>
+        <div class="invoice">
+          <div class="inv-head"><span>Telemetry tax</span><span>line items</span></div>
+          <div class="inv-row fragment">
+            <span class="inv-k">Schema</span>
+            <span class="inv-d">service.name · job · serviceName · svc</span>
+            <span class="inv-v">3 spellings, 1 service</span>
+          </div>
+          <div class="inv-row fragment">
+            <span class="inv-k">Cost</span>
+            <span class="inv-d">emit → ship → store → egress → the vendor's own copy</span>
+            <span class="inv-v">5 tolls, 1 event</span>
+          </div>
+          <div class="inv-row fragment">
+            <span class="inv-k">Interpretation</span>
+            <span class="inv-d">&ldquo;why does this label exist, and who added it?&rdquo;</span>
+            <span class="inv-v">1 human, currently on PTO</span>
+          </div>
+          <div class="inv-row fragment">
+            <span class="inv-k">References</span>
+            <span class="inv-d">trace_id ⇄ pod ⇄ request_id ⇄ hostname</span>
+            <span class="inv-v">a JOIN you run in Slack</span>
+          </div>
+          <div class="inv-tots fragment">
+            <div class="inv-row"><span class="inv-k">Subtotal</span><span class="inv-d">your observability bill</span><span class="inv-v">the number you argue about</span></div>
+            <div class="inv-row"><span class="inv-k">Tax</span><span class="inv-d">everything above it</span><span class="inv-v">on no invoice, anywhere</span></div>
+            <div class="inv-row"><span class="inv-k">Due</span><span class="inv-d">every incident, at 02:14</span><span class="inv-v">paid in headcount</span></div>
+          </div>
+        </div>
+        <p class="line punch fragment" style="font-size:.92em;margin-top:.4em">Schema is the only line item you
+          can <span class="amber">see</span>. It's also the cheapest one.</p>
+      </section>
+
+      <!-- 11 · TDP -->
+      <section class="divider defense" data-background-color="#0b0c10" data-rail="TDP">
+        <h1 class="acronym">TDP</h1>
+        <p class="expand">Telemetry <strong>Data Platform</strong></p>
+        <div class="lines" style="max-width:42ch">
+          <p class="line fragment">One set of decisions about the telemetry, made once. One schema, one policy
+            surface, one bill.</p>
+          <p class="line fragment">Your UI, your alerts, your agents are <strong>clients</strong> of that data.
+            Not owners of four copies of it.</p>
+        </div>
+        <p class="foot-note">// and yes, it still runs in your cloud. that part was never negotiable. that's the C.</p>
+      </section>
+
+      <!-- 12 · THE REDRAW -->
+      <section data-background-color="#0e0f13" data-rail="TDP">
+        <div class="kicker">The same stack, redrawn</div>
+        <svg class="diagram" viewBox="0 0 1000 400" style="max-height:390px" role="img"
+             aria-label="The same stack redrawn: services into one collector into one telemetry store inside your cloud account, with dashboards, alerts and agents reading from it as clients">
+          <rect class="dg-bar" x="60" y="4" width="880" height="42" rx="4"/>
+          <text class="dg-t mid" x="500" y="32">your services <tspan class="dg-s">· the same ones</tspan></text>
+          <path class="dg-a" d="M500 46 V74"/>
+          <rect class="dg-box" x="330" y="78" width="340" height="58" rx="4"/>
+          <text class="dg-t mid" x="500" y="105">OTel Collector</text>
+          <text class="dg-s mid" x="500" y="126">one pipeline. that's the whole list.</text>
+          <path class="dg-a" d="M500 136 V170"/>
+          <rect class="dg-ui" x="200" y="174" width="600" height="94" rx="4"/>
+          <text class="dg-k mid" x="500" y="197">TELEMETRY PLATFORM</text>
+          <text class="dg-t mid" x="500" y="228" style="font-size:24px">control + schema + storage</text>
+          <text class="dg-s mid" x="500" y="252">schema is the grammar. everything downstream inherits it.</text>
+          <path class="dg-bus" d="M500 268 V294"/><path class="dg-bus" d="M220 294 H780"/>
+          <path class="dg-a" d="M220 294 V318"/><path class="dg-a" d="M500 294 V318"/><path class="dg-a" d="M780 294 V318"/>
+          <rect class="dg-box" x="110" y="322" width="220" height="54" rx="4"/>
+          <text class="dg-t mid" x="220" y="355" style="font-size:21px">dashboards</text>
+          <rect class="dg-box" x="390" y="322" width="220" height="54" rx="4"/>
+          <text class="dg-t mid" x="500" y="355" style="font-size:21px">alerts</text>
+          <rect class="dg-box" x="670" y="322" width="220" height="54" rx="4"/>
+          <text class="dg-t mid" x="780" y="355" style="font-size:21px">agents</text>
+          <text class="dg-k mid" x="500" y="396" style="fill:#c4f000">SWAP ANY OF THESE TOMORROW · THE DATA DOESN'T MOVE</text>
+          <g class="fragment">
+            <rect x="44" y="2" width="912" height="278" rx="6" fill="none" stroke="#c4f000" stroke-width="2" stroke-dasharray="8 6" opacity=".8"/>
+            <text class="dg-k" x="188" y="220" text-anchor="end" style="fill:#c4f000">your cloud account</text>
+          </g>
+        </svg>
+        <p class="foot-note">// same services. same volume. same cloud. one grammar, and one place the decisions get made.</p>
+      </section>
+
+      <!-- 13 · CONTROL BEFORE STORAGE -->
+      <section class="defense" data-background-color="#0e0f13" data-rail="TDP">
+        <h2>Control happens before storage.</h2>
+        <table>
+          <tr><th>Where you act</th><th>What you can still do</th><th>What it costs to act</th></tr>
+          <tr><td>At the source</td><td style="color:var(--lime)">stop emitting it</td><td>a code change in every service</td></tr>
+          <tr><td>In the control plane</td><td style="color:var(--lime)">drop, aggregate, reroute, downsample</td><td style="color:var(--lime)">a policy change, once</td></tr>
+          <tr><td>After it lands</td><td style="color:var(--amber)">delete it, or pay to keep it</td><td style="color:var(--danger)">you already paid to ingest it</td></tr>
+          <tr><td>At the invoice</td><td style="color:var(--danger)">argue</td><td style="color:var(--danger)">a quarter</td></tr>
+        </table>
+        <p class="lead" style="margin-top:.5em">Every row below the second one is remediation. Only the
+          second one is control.</p>
+        <p class="foot-note">// every observability cost conversation i have starts at the bottom row.</p>
+      </section>
+      <!-- 14 · THE CLOSE -->
+      <section class="title" data-background-color="#0b0c10" data-rail="BYE">
+        <div class="kicker">So, whose cloud is it</div>
+        <h1 style="font-size:1.8em;line-height:1.06">Your cloud.<br>Your telemetry.<br><span style="color:var(--lime)">Your answers.</span></h1>
+        <p class="endcard fragment">Nishant &middot; Last9 <span>&middot; last9.io &middot; nishant@last9.io</span></p>
+        <p class="foot-note">// questions, and the hostile ones especially.</p>
+      </section>
+      <!-- APPENDIX · not presented. kept for Q&A. -->
+      <section data-background-color="#0e0f13" data-rail="BYE">
+        <div class="kicker">Appendix &middot; the fair critique</div>
+        <div class="meme">
+          <div>
+            <img src="../assets/png/linux-cake-meme.jpg"
+                 alt="Meme: &ldquo;Happy Birthday Linux! Here's your cake, go ahead and compile it yourself!&rdquo; over a photo of unmixed cake ingredients: flour, butter, eggs, sugar and spices.">
+            <p class="meme-src">// not my joke. i wish it were.</p>
+          </div>
+          <div class="lines wide" style="margin:0">
+            <p class="line">&ldquo;Bring your own&rdquo; has always had a way of meaning
+              <strong>somebody hands you ingredients and calls it a cake</strong>.</p>
+            <p class="line">This is the fair version of the critique, and it is worth answering directly
+              rather than ducking.</p>
+            <p class="line punch" style="font-size:.96em">And the honest answer is
+              <span class="amber">yes, partly</span>. You still own the operating.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script src="../node_modules/reveal.js/dist/reveal.js"></script>
+  <script src="../node_modules/reveal.js/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({ hash:true, slideNumber:'c/t', transition:'fade', transitionSpeed:'fast',
+      width:1280, height:720, margin:0.04, center:false, controlsTutorial:false,
+      plugins:[ RevealHighlight ] });
+
+    // The A B C D rail. It flips to TDP on the turn and BYE at the end. That swap is a joke
+    // in the script, so it has to be visible without the presenter pointing at it.
+    var lettersEl = document.getElementById('letters');
+    function paintRail(slide){
+      if (!slide) return;
+      var rail = slide.getAttribute('data-rail') || 'ABCD';
+      if (lettersEl.getAttribute('data-cur') !== rail){
+        lettersEl.innerHTML = rail.split('').map(function(c){ return '<b>' + c + '</b>'; }).join('');
+        lettersEl.setAttribute('data-cur', rail);
+      }
+      var letters = lettersEl.querySelectorAll('b');
+      if (rail !== 'ABCD'){
+        for (var i=0;i<letters.length;i++){ letters[i].classList.remove('lit','done'); }
+        return;
+      }
+      var cur = slide.getAttribute('data-letter');
+      // no data-letter before A (the opener) is -1; after D it's 4, so every letter reads as done
+      var idx = cur ? ['A','B','C','D'].indexOf(cur) : (slide === Reveal.getSlides()[0] ? -1 : 4);
+      for (var j=0;j<letters.length;j++){
+        letters[j].classList.toggle('lit', j === idx);
+        letters[j].classList.toggle('done', idx === 4 || j < idx);
+      }
+    }
+    Reveal.on('ready', function(e){ paintRail(e.currentSlide); });
+    Reveal.on('slidechanged', function(e){ paintRail(e.currentSlide); });
+  </script>
+</body>
+</html>
