@@ -4,12 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Whose Cloud Is It Anyway?</title>
-  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reset.css">
-  <link rel="stylesheet" href="../node_modules/reveal.js/dist/reveal.css">
-  <link rel="stylesheet" href="../node_modules/@fontsource-variable/inter/index.css">
-  <link rel="stylesheet" href="../node_modules/@fontsource-variable/jetbrains-mono/index.css">
-  <link rel="stylesheet" href="../node_modules/@fontsource-variable/shantell-sans/index.css">
-  <link rel="stylesheet" href="../node_modules/reveal.js/plugin/highlight/monokai.css">
+  <link rel="stylesheet" href="../vendor/reveal/reset.css">
+  <link rel="stylesheet" href="../vendor/fonts/fonts.css">
+  <link rel="stylesheet" href="../vendor/reveal/reveal.css">
+  <link rel="stylesheet" href="../vendor/reveal/plugin/highlight/monokai.css">
   <link rel="stylesheet" href="../shared/theme.css">
   <style>
     /* amber marks the problem act, lime the turn. talk-8 uses the same warning amber. */
@@ -23,6 +21,9 @@
     .reveal .cursor{ display:inline-block; width:.5em; height:.72em; background:var(--lime);
       margin-left:.06em; animation:blink 1.05s steps(1,end) infinite; }
     @keyframes blink{ 0%,50%{opacity:1} 50.01%,100%{opacity:0} }
+    /* PDF/print captures a single frame, so freeze the cursor visible rather than mid-blink */
+    @media print{ .reveal .cursor{ animation:none; opacity:1 } }
+    .print-pdf .reveal .cursor{ animation:none; opacity:1 }
 
     .reveal .expand{ font-family:var(--font-display); font-weight:500; font-size:1.5em;
       letter-spacing:-.012em; color:var(--ink-dim); margin:.3em 0 0; }
@@ -426,8 +427,8 @@
       </section>
     </div>
   </div>
-  <script src="../node_modules/reveal.js/dist/reveal.js"></script>
-  <script src="../node_modules/reveal.js/plugin/highlight/highlight.js"></script>
+  <script src="../vendor/reveal/reveal.js"></script>
+  <script src="../vendor/reveal/plugin/highlight/highlight.js"></script>
   <script>
     Reveal.initialize({ hash:true, slideNumber:'c/t', transition:'fade', transitionSpeed:'fast',
       width:1280, height:720, margin:0.04, center:false, controlsTutorial:false,
