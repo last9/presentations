@@ -26,6 +26,8 @@ for (const htmlFile of htmlFiles) {
   for (const match of html.matchAll(attributePattern)) {
     const target = match[1];
     if (/^(?:[a-z]+:|#|\/\/)/i.test(target)) continue;
+    // standalone builds inline reveal.js, whose source contains ${...} template literals
+    if (target.includes("${")) continue;
 
     const cleanTarget = target.split(/[?#]/, 1)[0];
     if (!cleanTarget) continue;
