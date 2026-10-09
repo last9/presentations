@@ -5,7 +5,8 @@
   "description": "Last9 conference talks and presentation assets",
   "type": "module",
   "scripts": {
-    "check": "node scripts/check-local-links.mjs",
+    "check": "node scripts/check-local-links.mjs && node scripts/check-public-route-baseline.mjs",
+    "check:baseline": "node scripts/check-public-route-baseline.mjs",
     "dev": "serve -l 8000 .",
     "start": "serve -l 8000 .",
     "assets": "node scripts/svg-to-png.mjs",

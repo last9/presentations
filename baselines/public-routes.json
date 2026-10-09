@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "capturedAt": "2026-10-09",
+  "sourceCommit": "0f3b72ad28a41001604b74572368b505c7762378",
+  "pages": {
+    "url": "https://last9.github.io/presentations/",
+    "status": "built",
+    "buildType": "legacy",
+    "sourceBranch": "master",
+    "sourcePath": "/",
+    "customDomain": null,
+    "httpsEnforced": true
+  },
+  "discoveryEndpoints": [
+    { "path": "/presentations/robots.txt", "status": 404, "contentType": "text/html; charset=utf-8", "contentLength": 9379, "finalUrl": "https://last9.github.io/presentations/robots.txt" },
+    { "path": "/presentations/sitemap.xml", "status": 404, "contentType": "text/html; charset=utf-8", "contentLength": 9379, "finalUrl": "https://last9.github.io/presentations/sitemap.xml" },
+    { "path": "/presentations/llms.txt", "status": 404, "contentType": "text/html; charset=utf-8", "contentLength": 9379, "finalUrl": "https://last9.github.io/presentations/llms.txt" }
+  ],
+  "routes": [
+    { "path": "/presentations/", "sourcePath": "index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 7156, "finalUrl": "https://last9.github.io/presentations/", "sha256": "6811607e6a984f711978a2496f5899ce9a4b2e710d9811455b12c194679c9683" },
+    { "path": "/presentations/talk-1/", "sourcePath": "talk-1/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 31405, "finalUrl": "https://last9.github.io/presentations/talk-1/", "sha256": "cfcda2f8dabc06c95a72e34d1027cb02d65dacccc18b2f3d9430c0ee3ad20787" },
+    { "path": "/presentations/talk-2/", "sourcePath": "talk-2/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 12091, "finalUrl": "https://last9.github.io/presentations/talk-2/", "sha256": "194a32dad91d8b52124865e2e01f25df1a141595d29ec96937afd08b9c6f948f" },
+    { "path": "/presentations/talk-3/", "sourcePath": "talk-3/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 11738, "finalUrl": "https://last9.github.io/presentations/talk-3/", "sha256": "b60009a4c5d00bb2458915c7c0c1424008c9f0d05b9abcacb73284d4bd8b7152" },
+    { "path": "/presentations/talk-4/", "sourcePath": "talk-4/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 9310, "finalUrl": "https://last9.github.io/presentations/talk-4/", "sha256": "9d6abae2865d89e8670df2d39ee8690b29bab8152e5e1827455553e9a4fdfcf3" },
+    { "path": "/presentations/talk-5/", "sourcePath": "talk-5/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 9131, "finalUrl": "https://last9.github.io/presentations/talk-5/", "sha256": "d1d7246fdb86b056ef65b56ffeb6100be0f5c6d2c4d348d0314f3a4e2920ce3b" },
+    { "path": "/presentations/talk-6/", "sourcePath": "talk-6/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 11959, "finalUrl": "https://last9.github.io/presentations/talk-6/", "sha256": "15cee85eb534fb16fed12c1aeaecb1692abd39f1ce8dc12afcdf3a8ccb4055a5" },
+    { "path": "/presentations/talk-7/", "sourcePath": "talk-7/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 10072, "finalUrl": "https://last9.github.io/presentations/talk-7/", "sha256": "d00f073b4de637a029562831fcdb44fc5edbb58eaa34dd2a62ad7948a5622b45" },
+    { "path": "/presentations/talk-8/", "sourcePath": "talk-8/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 15524, "finalUrl": "https://last9.github.io/presentations/talk-8/", "sha256": "5246f0f3249d8fc5244675a604f405760f23d442fbec2e0c98e25665461696b5" },
+    { "path": "/presentations/whose-cloud-is-it-anyway-sep-2-2026/", "sourcePath": "whose-cloud-is-it-anyway-sep-2-2026/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 31178, "finalUrl": "https://last9.github.io/presentations/whose-cloud-is-it-anyway-sep-2-2026/", "sha256": "61ab292eea0ce4d7de3fee3246c6102ca670217a2192cfc0f01f90f43f6213a6" },
+    { "path": "/presentations/docs/", "sourcePath": "docs/README.md", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 14969, "finalUrl": "https://last9.github.io/presentations/docs/" },
+    { "path": "/presentations/talk-live/", "sourcePath": "talk-live/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 59528, "finalUrl": "https://last9.github.io/presentations/talk-live/", "sha256": "cf507f84a043d2efbb1c6fe075d6bbbde76a702359f12f1fa84b83a8db4dd5b1" },
+    { "path": "/presentations/talk-live/notes.html", "sourcePath": "talk-live/notes.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 21529, "finalUrl": "https://last9.github.io/presentations/talk-live/notes.html", "sha256": "bd36f0b50c39f99455d3aced2bafd93c0e197a16049430855d6fc1b0021a882f" },
+    { "path": "/presentations/whose-cloud-is-it-anyway-sep-2-2026/whose-cloud-is-it-anyway.html", "sourcePath": "whose-cloud-is-it-anyway-sep-2-2026/whose-cloud-is-it-anyway.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 518853, "finalUrl": "https://last9.github.io/presentations/whose-cloud-is-it-anyway-sep-2-2026/whose-cloud-is-it-anyway.html", "sha256": "f26cb8f6c64675d49915d7f0eab906a51ebd790f670e77b51d4dcbc2f4f80d60" },
+    { "path": "/presentations/carousel/", "sourcePath": "carousel/index.html", "status": 200, "contentType": "text/html; charset=utf-8", "contentLength": 30832, "finalUrl": "https://last9.github.io/presentations/carousel/", "sha256": "7dfece23f66636194594e890c3b93dd384cd4a02ef6a9d53ec575cfcbe286a1d" },
+    { "path": "/presentations/carousel/untrusted-agents-carousel.pdf", "sourcePath": "carousel/untrusted-agents-carousel.pdf", "status": 200, "contentType": "application/pdf", "contentLength": 1332876, "finalUrl": "https://last9.github.io/presentations/carousel/untrusted-agents-carousel.pdf" },
+    { "path": "/presentations/carousel/out/slide-01.png", "sourcePath": "carousel/out/slide-01.png", "status": 200, "contentType": "image/png", "contentLength": 141400, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-01.png" },
+    { "path": "/presentations/carousel/out/slide-02.png", "sourcePath": "carousel/out/slide-02.png", "status": 200, "contentType": "image/png", "contentLength": 317308, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-02.png" },
+    { "path": "/presentations/carousel/out/slide-03.png", "sourcePath": "carousel/out/slide-03.png", "status": 200, "contentType": "image/png", "contentLength": 176380, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-03.png" },
+    { "path": "/presentations/carousel/out/slide-04.png", "sourcePath": "carousel/out/slide-04.png", "status": 200, "contentType": "image/png", "contentLength": 297670, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-04.png" },
+    { "path": "/presentations/carousel/out/slide-05.png", "sourcePath": "carousel/out/slide-05.png", "status": 200, "contentType": "image/png", "contentLength": 153523, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-05.png" },
+    { "path": "/presentations/carousel/out/slide-06.png", "sourcePath": "carousel/out/slide-06.png", "status": 200, "contentType": "image/png", "contentLength": 188250, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-06.png" },
+    { "path": "/presentations/carousel/out/slide-07.png", "sourcePath": "carousel/out/slide-07.png", "status": 200, "contentType": "image/png", "contentLength": 186396, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-07.png" },
+    { "path": "/presentations/carousel/out/slide-08.png", "sourcePath": "carousel/out/slide-08.png", "status": 200, "contentType": "image/png", "contentLength": 201202, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-08.png" },
+    { "path": "/presentations/carousel/out/slide-09.png", "sourcePath": "carousel/out/slide-09.png", "status": 200, "contentType": "image/png", "contentLength": 204271, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-09.png" },
+    { "path": "/presentations/carousel/out/slide-10.png", "sourcePath": "carousel/out/slide-10.png", "status": 200, "contentType": "image/png", "contentLength": 205389, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-10.png" },
+    { "path": "/presentations/carousel/out/slide-11.png", "sourcePath": "carousel/out/slide-11.png", "status": 200, "contentType": "image/png", "contentLength": 176095, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-11.png" },
+    { "path": "/presentations/carousel/out/slide-12.png", "sourcePath": "carousel/out/slide-12.png", "status": 200, "contentType": "image/png", "contentLength": 166771, "finalUrl": "https://last9.github.io/presentations/carousel/out/slide-12.png" }
+  ]
+}
