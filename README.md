@@ -20,6 +20,8 @@ Talk abstracts, outlines, and presenter scripts are in [`docs/`](docs/).
 
 ## Run locally
 
+Use the Node version in [`.nvmrc`](.nvmrc) (`nvm use`). `package.json` allows only releases that block the compromised eMudhra intermediates: 22.23.4+ or 24.22.1+.
+
 ```sh
 npm ci
 npm run check

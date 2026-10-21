@@ -4,6 +4,9 @@
   "private": true,
   "description": "Last9 conference talks and presentation assets",
   "type": "module",
+  "engines": {
+    "node": "^22.23.4 || ^24.22.1"
+  },
   "scripts": {
     "check": "node scripts/check-node-version.mjs && node scripts/check-local-links.mjs && node scripts/check-public-route-baseline.mjs",
     "check:baseline": "node scripts/check-public-route-baseline.mjs",
