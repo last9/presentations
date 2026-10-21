@@ -65,6 +65,12 @@ if (pinned && !ranges.some((range) => {
   failures.push(`.nvmrc ${pinnedText} does not satisfy engines.node "${enginesText}"`);
 }
 
+// CI must run the pinned version rather than whatever its own input resolves to.
+const workflow = readFileSync(resolve(root, ".github/workflows/check.yml"), "utf8");
+if (!/^\s*node-version-file: \.nvmrc$/m.test(workflow) || /^\s*node-version:/m.test(workflow)) {
+  failures.push("check.yml: setup-node must use node-version-file: .nvmrc");
+}
+
 if (failures.length) {
   console.error("Node version failures:\n" + failures.map((item) => `- ${item}`).join("\n"));
   process.exit(1);
